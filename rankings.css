@@ -170,3 +170,112 @@
 .close-btn:hover {
   color: #fff;
 }
+/* 모달 레이아웃 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+.modal-overlay.active { display: flex; }
+
+.game-modal-content {
+  position: relative;
+  width: 800px;
+  height: 550px;
+  background-color: #111318;
+  border: 2px solid #333645;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  cursor: crosshair;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 15px; right: 20px;
+  background: none; border: none;
+  color: #8a8f9d; font-size: 1.8rem;
+  cursor: pointer; z-index: 50;
+}
+.close-modal-btn:hover { color: #fff; }
+
+.ui-panel {
+  position: absolute;
+  top: 20px; left: 25px; right: 60px;
+  display: flex; justify-content: space-between;
+  z-index: 10; font-weight: bold; font-size: 1.1rem;
+  pointer-events: none;
+}
+.ammo-count { color: #ffd700; }
+.spider-hp { color: #ff4444; }
+
+#spider {
+  position: absolute;
+  width: 200px; height: 200px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  filter: brightness(1.7) contrast(1.2) grayscale(0.1);
+  transition: filter 0.1s;
+}
+
+#monster {
+  position: absolute;
+  width: 260px;
+  bottom: -320px; right: -20px;
+  transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 8;
+  pointer-events: none;
+}
+#monster.active { bottom: 0px; }
+
+.timing-game-container {
+  position: absolute;
+  bottom: 40px; left: 50%;
+  transform: translateX(-50%);
+  width: 480px; height: 36px;
+  background-color: #1a1a1a;
+  border: 3px solid #444;
+  border-radius: 8px;
+  display: none; z-index: 20;
+}
+.timing-game-container.active { display: block; }
+
+.white-zone {
+  position: absolute; top: 0; height: 100%;
+  width: 75px; background-color: #ffffff;
+  box-shadow: 0 0 12px #ffffff;
+}
+
+.red-bar {
+  position: absolute; top: 0; width: 10px; height: 100%;
+  background-color: #ff3333; box-shadow: 0 0 10px #ff3333;
+}
+
+.timing-status {
+  position: absolute; bottom: 85px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1rem; color: #00e676; font-weight: bold;
+  display: none; z-index: 20; text-align: center;
+}
+.timing-status.active { display: block; }
+.timer-text { color: #ffeb3b; margin-left: 10px; }
+
+.overlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 100;
+}
+.overlay h2 { font-size: 2.2rem; color: #00e676; margin-bottom: 20px; }
+.overlay button {
+  padding: 12px 28px; font-size: 1rem; font-weight: bold;
+  background-color: #00e676; border: none; border-radius: 8px;
+  cursor: pointer; color: #000;
+}
