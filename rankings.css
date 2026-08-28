@@ -1,0 +1,105 @@
+/* 전체 컨테이너 */
+.rankings-section {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: 'Pretendard', sans-serif;
+  color: #fff;
+}
+
+.rankings-section h2 {
+  font-size: 1.2rem;
+  color: #ffd700;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 8px;
+}
+
+/* 1. 종목별 최고 기록 그리드 */
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.record-card {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.record-card:hover {
+  border-color: #00e676;
+}
+
+.record-card .game-title {
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.record-card .record-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #00e676;
+  font-family: monospace;
+}
+
+/* 2. 업적 카드 리스트 */
+.achievements-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  background-color: #252525;
+  border: 1px solid #383838;
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.3s;
+}
+
+/* 달성 전 (잠김) */
+.achievement-card.locked {
+  opacity: 0.4;
+  filter: grayscale(100%);
+}
+
+/* 달성 후 (열림) */
+.achievement-card.unlocked {
+  border-left: 4px solid #ffd700;
+  background-color: #2d2a1e;
+}
+
+.ach-icon {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.ach-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.ach-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.ach-desc {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 2px;
+}
