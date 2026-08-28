@@ -1854,13 +1854,25 @@
 <body>
 
   <!-- 랭킹 & 업적 표시 영역 -->
-  <div class="rankings-section">
+ <div class="main-container">
+  <!-- 1. 타이틀 & 퍼즐 목록 -->
+  <header>
+    <h1>THE MIMIC TRAINER</h1>
+  </header>
+
+  <div class="puzzle-grid">
+    <!-- 기존 퍼즐 카드 6개 -->
+  </div>
+
+  <!-- 2. 최고 기록 및 업적 (퍼즐 카드 아래로 독립) -->
+  <section class="rankings-section">
     <h2>🏆 종목별 최고 기록</h2>
     <div id="records-grid" class="records-grid"></div>
 
     <h2>🎖️ 업적 목록</h2>
     <div id="achievements-grid" class="achievements-grid"></div>
-  </div>
+  </section>
+</div>
 
   <!-- JS 연결 -->
   <script src="rankings.js"></script>
