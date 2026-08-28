@@ -1876,4 +1876,18 @@
 
   <!-- JS 연결 -->
   <script src="rankings.js"></script>
-</body>
+</body><!-- 1. 랭킹 열기 버튼 (화면 메인에 배치) -->
+<button class="open-rankings-btn" onclick="openRankings()">🏆 최고 기록 & 업적 보기</button>
+
+<!-- 2. 팝업 모달 영역 -->
+<div id="rankings-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeRankings()">&times;</button>
+
+    <h2>🏆 종목별 최고 기록</h2>
+    <div id="records-grid" class="records-grid"></div>
+
+    <h2>🎖️ 업적 목록</h2>
+    <div id="achievements-grid" class="achievements-grid"></div>
+  </div>
+</div>
