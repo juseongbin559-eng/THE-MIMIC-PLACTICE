@@ -21,42 +21,45 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden;
+      padding: 20px;
     }
 
+    /* 컨테이너 최대 너비 확대 (800px -> 1200px) */
     .screen {
       display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 800px;
+      max-width: 1200px;
     }
 
     .active-screen { display: flex; }
 
     h1 {
-      font-size: 28px;
-      letter-spacing: 3px;
-      margin-bottom: 25px;
+      font-size: 36px;
+      letter-spacing: 4px;
+      margin-bottom: 30px;
       color: #e0e0e0;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
     }
 
-    h2 { font-size: 22px; letter-spacing: 2px; margin-bottom: 10px; }
+    h2 { font-size: 28px; letter-spacing: 2px; margin-bottom: 15px; }
 
-    /* 로비 UI */
+    /* 로비 UI 확대 */
     .puzzle-grid {
       display: grid;
-      grid-template-columns: repeat(3, 200px);
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 100%;
     }
 
     .card {
       background: #18181f;
       border: 1px solid #2e2e3e;
-      border-radius: 12px;
-      padding: 18px 12px;
+      border-radius: 14px;
+      padding: 25px 15px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -70,34 +73,34 @@
       box-shadow: 0 6px 20px rgba(106, 90, 205, 0.3);
     }
 
-    .card h3 { font-size: 15px; margin-bottom: 6px; color: #ffffff; }
-    .card .desc { font-size: 11px; color: #888899; margin-bottom: 10px; }
-    .card .record { font-size: 11px; color: #4cd137; font-weight: bold; }
+    .card h3 { font-size: 18px; margin-bottom: 8px; color: #ffffff; }
+    .card .desc { font-size: 13px; color: #888899; margin-bottom: 12px; }
+    .card .record { font-size: 13px; color: #4cd137; font-weight: bold; }
 
     .status {
-      margin: 10px 0;
-      font-size: 15px;
-      min-height: 24px;
+      margin: 15px 0;
+      font-size: 18px;
+      min-height: 28px;
       color: #aaaaaa;
       text-align: center;
     }
 
     .btn-container {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 12px;
+      margin-top: 25px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .nav-btn {
-      padding: 10px 18px;
-      font-size: 14px;
+      padding: 12px 24px;
+      font-size: 16px;
       font-weight: bold;
       background: #2a2a38;
       color: #ffffff;
       border: 1px solid #444458;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.2s;
     }
@@ -111,19 +114,19 @@
     .submit-btn { background: #2e7d32; border-color: #4caf50; }
     .submit-btn:hover { background: #388e3c; }
 
-    /* 1. 메모리 퍼즐 1 UI */
+    /* 1. 메모리 퍼즐 1 UI 확대 */
     .memory-grid {
       display: grid;
-      grid-template-columns: repeat(3, 85px);
-      grid-template-rows: repeat(3, 85px);
-      gap: 12px;
-      margin: 15px 0;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows: repeat(3, 110px);
+      gap: 16px;
+      margin: 20px 0;
     }
 
     .btn-pad {
       background-color: #1a1a24;
       border: 2px solid #333344;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       transition: background-color 0.15s, box-shadow 0.15s;
     }
@@ -140,46 +143,46 @@
       box-shadow: 0 0 20px #ff3344;
     }
 
-    /* 2. 한자 그리기 퍼즐 UI */
+    /* 2. 한자 그리기 퍼즐 UI 확대 */
     .hanji-board {
       position: relative;
-      width: 320px;
-      height: 320px;
+      width: 400px;
+      height: 400px;
       background: radial-gradient(circle, #b88f38 0%, #8c6820 100%);
-      border: 6px solid #4a3410;
+      border: 8px solid #4a3410;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6), 0 10px 25px rgba(0, 0, 0, 0.8);
-      border-radius: 4px;
-      margin: 10px 0;
+      border-radius: 8px;
+      margin: 15px 0;
     }
 
     canvas { position: absolute; top: 0; left: 0; }
     #guide-canvas { z-index: 1; opacity: 0.22; }
     #draw-canvas { z-index: 2; cursor: crosshair; }
 
-    .kanji-info { font-size: 14px; color: #bbbbcc; margin-bottom: 5px; }
+    .kanji-info { font-size: 16px; color: #bbbbcc; margin-bottom: 5px; }
 
-    /* 3. 1~4 숫자 반응속도 퍼즐 UI */
+    /* 3. 1~4 숫자 반응속도 퍼즐 UI 확대 */
     .num-spawn-area {
       position: relative;
-      width: 340px;
-      height: 340px;
+      width: 450px;
+      height: 450px;
       background: #14141a;
       border: 3px solid #2e2e3e;
-      border-radius: 12px;
-      margin: 10px 0;
+      border-radius: 16px;
+      margin: 15px 0;
       overflow: hidden;
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
 
     .target-circle {
       position: absolute;
-      width: 70px;
-      height: 70px;
+      width: 85px;
+      height: 85px;
       border-radius: 50%;
       background: #2a2a38;
-      border: 3px solid #d4af37;
+      border: 4px solid #d4af37;
       color: #ffffff;
-      font-size: 28px;
+      font-size: 34px;
       font-weight: bold;
       display: flex;
       flex-direction: column;
@@ -204,11 +207,11 @@
     }
 
     .timer-bar-container {
-      width: 44px;
-      height: 5px;
+      width: 55px;
+      height: 6px;
       background: #111;
       border-radius: 3px;
-      margin-top: 2px;
+      margin-top: 4px;
       overflow: hidden;
     }
 
@@ -218,18 +221,18 @@
       background: #d4af37;
     }
 
-    .lives-info { font-size: 15px; color: #ff5555; margin-bottom: 5px; }
+    .lives-info { font-size: 18px; color: #ff5555; margin-bottom: 5px; }
 
-    /* 4. 퓨즈박스 퍼즐 UI */
+    /* 4. 퓨즈박스 퍼즐 UI 확대 */
     .fusebox-container {
       position: relative;
-      width: 240px;
-      height: 380px;
+      width: 320px;
+      height: 480px;
       background: #2a2c33;
-      border: 5px solid #1a1b20;
-      border-radius: 10px;
+      border: 6px solid #1a1b20;
+      border-radius: 12px;
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.9);
-      margin: 10px 0;
+      margin: 15px 0;
       overflow: hidden;
     }
 
@@ -241,12 +244,12 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 15px 20px;
+      padding: 20px 25px;
     }
 
     .wire-lane {
       position: relative;
-      width: 32px;
+      width: 40px;
       height: 100%;
       display: flex;
       justify-content: center;
@@ -254,8 +257,8 @@
 
     .wire-segment {
       position: absolute;
-      width: 10px;
-      border-radius: 3px;
+      width: 14px;
+      border-radius: 4px;
       box-shadow: inset 2px 0 4px rgba(255, 255, 255, 0.3), 0 0 6px rgba(0, 0, 0, 0.8);
     }
 
@@ -265,11 +268,11 @@
 
     .wire-cut-point {
       position: absolute;
-      width: 30px;
-      height: 22px;
+      width: 38px;
+      height: 28px;
       border: 2px dashed #ff3344;
       background: rgba(255, 51, 68, 0.3);
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
       box-shadow: 0 0 8px #ff3344;
       animation: pulse 0.8s infinite alternate;
@@ -301,19 +304,19 @@
     .fusebox-cover.open { transform: translateY(105%); }
 
     .cover-title {
-      font-size: 14px;
+      font-size: 18px;
       color: #8a8d9b;
       font-weight: bold;
-      letter-spacing: 2px;
-      border: 1px solid #6a6d7b;
-      padding: 4px 12px;
-      border-radius: 4px;
+      letter-spacing: 3px;
+      border: 2px solid #6a6d7b;
+      padding: 6px 16px;
+      border-radius: 6px;
     }
 
     .screw {
       position: absolute;
-      width: 32px;
-      height: 32px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: radial-gradient(circle, #8a8d9b 0%, #484b54 80%);
       border: 2px solid #222328;
@@ -332,16 +335,16 @@
     }
 
     .screw-slot {
-      width: 18px;
-      height: 4px;
+      width: 24px;
+      height: 5px;
       background: #1a1b20;
       border-radius: 2px;
     }
 
-    .screw.top-left { top: 12px; left: 12px; }
-    .screw.top-right { top: 12px; right: 12px; }
-    .screw.bottom-left { bottom: 12px; left: 12px; }
-    .screw.bottom-right { bottom: 12px; right: 12px; }
+    .screw.top-left { top: 16px; left: 16px; }
+    .screw.top-right { top: 16px; right: 16px; }
+    .screw.bottom-left { bottom: 16px; left: 16px; }
+    .screw.bottom-right { bottom: 16px; right: 16px; }
     .screw.removed { opacity: 0; pointer-events: none; }
 
     .screw-overlay {
@@ -349,15 +352,15 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0);
-      width: 110px;
-      height: 110px;
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
       background: radial-gradient(circle, #a0a3b0 0%, #3a3c44 85%);
-      border: 4px solid #111215;
+      border: 5px solid #111215;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 30px rgba(212, 175, 55, 0.6), 0 0 10px #000;
+      box-shadow: 0 0 35px rgba(212, 175, 55, 0.6), 0 0 10px #000;
       z-index: 25;
       opacity: 0;
       pointer-events: none;
@@ -370,19 +373,19 @@
     }
 
     .screw-overlay .big-slot {
-      width: 65px;
-      height: 10px;
+      width: 90px;
+      height: 14px;
       background: #111215;
-      border-radius: 4px;
+      border-radius: 5px;
     }
 
-    /* 5. 메모리 게임 2 (CRT 레트로 모니터 UI) */
+    /* 5. CRT 모니터 퍼즐 UI 확대 */
     .crt-monitor-frame {
-      width: 320px;
+      width: 480px;
       background: #2b2b2b;
-      border: 8px solid #1a1a1a;
-      border-radius: 20px;
-      padding: 18px;
+      border: 10px solid #1a1a1a;
+      border-radius: 24px;
+      padding: 24px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.1);
       display: flex;
       flex-direction: column;
@@ -391,10 +394,10 @@
 
     .crt-screen {
       width: 100%;
-      height: 200px;
+      height: 280px;
       background: #051405;
-      border: 4px solid #002b00;
-      border-radius: 12px;
+      border: 5px solid #002b00;
+      border-radius: 16px;
       position: relative;
       display: flex;
       align-items: center;
@@ -403,7 +406,6 @@
       overflow: hidden;
     }
 
-    /* CRT 주사선 효과 */
     .crt-screen::before {
       content: " ";
       position: absolute;
@@ -421,27 +423,27 @@
     .crt-buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 15px;
       width: 100%;
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .crt-btn {
       background: #1e221e;
       border: 2px solid #00ff41;
-      border-radius: 8px;
-      height: 55px;
+      border-radius: 10px;
+      height: 70px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 0 #005511;
+      box-shadow: 0 5px 0 #005511;
       transition: all 0.1s;
     }
 
     .crt-btn:active, .crt-btn.active {
       transform: translateY(3px);
-      box-shadow: 0 1px 0 #005511;
+      box-shadow: 0 2px 0 #005511;
       background: #00ff41;
     }
 
@@ -450,8 +452,8 @@
     }
 
     .crt-btn svg {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       stroke: #00ff41;
       stroke-width: 2.5;
       fill: none;
@@ -522,22 +524,18 @@
 
     <div class="crt-monitor-frame">
       <div class="crt-screen">
-        <canvas id="crt-canvas" width="260" height="180"></canvas>
+        <canvas id="crt-canvas" width="400" height="250"></canvas>
       </div>
       <div class="crt-buttons">
-        <!-- 삼각형(0) -->
         <button class="crt-btn" onclick="handleCrtInput(0)">
           <svg viewBox="0 0 24 24"><polygon points="12,3 2,21 22,21"/></svg>
         </button>
-        <!-- 사각형(1) -->
         <button class="crt-btn" onclick="handleCrtInput(1)">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/></svg>
         </button>
-        <!-- 사다리꼴(2) -->
         <button class="crt-btn" onclick="handleCrtInput(2)">
           <svg viewBox="0 0 24 24"><polygon points="6,4 18,4 22,20 2,20"/></svg>
         </button>
-        <!-- 원(3) -->
         <button class="crt-btn" onclick="handleCrtInput(3)">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
         </button>
@@ -557,8 +555,8 @@
     <div id="kanji-status" class="status">게임 시작 버튼을 눌러주세요</div>
 
     <div class="hanji-board">
-      <canvas id="guide-canvas" width="320" height="320"></canvas>
-      <canvas id="draw-canvas" width="320" height="320"></canvas>
+      <canvas id="guide-canvas" width="400" height="400"></canvas>
+      <canvas id="draw-canvas" width="400" height="400"></canvas>
     </div>
 
     <div class="btn-container">
@@ -613,9 +611,7 @@
   </div>
 
   <script>
-    /* =========================================================
-       0. Web Audio API 효과음
-    ========================================================= */
+    /* 0. Web Audio API 효과음 */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -673,9 +669,7 @@
       }
     }
 
-    /* =========================================================
-       1. 로비 & 기록관리
-    ========================================================= */
+    /* 1. 로비 & 기록관리 */
     function updateLobbyRecords() {
       const memoryBest = localStorage.getItem('mimic_best_memory');
       const memory2Best = localStorage.getItem('mimic_best_memory2');
@@ -711,9 +705,7 @@
       }
     }
 
-    /* =========================================================
-       2. 메모리 게임 1
-    ========================================================= */
+    /* 2. 메모리 게임 1 */
     const memoryButtons = document.querySelectorAll('.btn-pad');
     const memoryStatus = document.getElementById('memory-status');
     const memoryStartBtn = document.getElementById('memory-start-btn');
@@ -807,13 +799,11 @@
       }
     }
 
-    /* =========================================================
-       3. 메모리 게임 2 (CRT 모니터 도형 퍼즐)
-    ========================================================= */
+    /* 3. CRT 모니터 도형 퍼즐 */
     let crtCanvas, crtCtx;
     let crtSequence = [];
     let crtPlayerSeq = [];
-    let crtRound = 1; // 총 2라운드
+    let crtRound = 1;
     let isCrtPlaying = false;
     let isCrtActive = false;
     let crtStartTime = 0;
@@ -825,34 +815,34 @@
     }
 
     function drawCrtShape(type) {
-      crtCtx.clearRect(0, 0, 260, 180);
+      crtCtx.clearRect(0, 0, 400, 250);
       if (type === null) return;
 
       crtCtx.strokeStyle = '#00ff41';
-      crtCtx.lineWidth = 4;
+      crtCtx.lineWidth = 5;
       crtCtx.shadowColor = '#00ff41';
-      crtCtx.shadowBlur = 12;
+      crtCtx.shadowBlur = 14;
       crtCtx.beginPath();
 
       if (type === 0) { // 삼각형
-        crtCtx.moveTo(130, 30);
-        crtCtx.lineTo(40, 150);
-        crtCtx.lineTo(220, 150);
+        crtCtx.moveTo(200, 40);
+        crtCtx.lineTo(70, 210);
+        crtCtx.lineTo(330, 210);
         crtCtx.closePath();
       } else if (type === 1) { // 사각형
-        crtCtx.rect(50, 30, 160, 120);
+        crtCtx.rect(90, 45, 220, 160);
       } else if (type === 2) { // 사다리꼴
-        crtCtx.moveTo(80, 40);
-        crtCtx.lineTo(180, 40);
-        crtCtx.lineTo(220, 140);
-        crtCtx.lineTo(40, 140);
+        crtCtx.moveTo(130, 50);
+        crtCtx.lineTo(270, 50);
+        crtCtx.lineTo(330, 200);
+        crtCtx.lineTo(70, 200);
         crtCtx.closePath();
       } else if (type === 3) { // 원
-        crtCtx.arc(130, 90, 60, 0, Math.PI * 2);
+        crtCtx.arc(200, 125, 80, 0, Math.PI * 2);
       }
 
       crtCtx.stroke();
-      crtCtx.shadowBlur = 0; // 초기화
+      crtCtx.shadowBlur = 0;
     }
 
     function startMemory2Game() {
@@ -863,7 +853,6 @@
     }
 
     function startCrtRound() {
-      // 0, 1, 2, 3 도형을 중복 없이 무작위 셔플
       crtSequence = [0, 1, 2, 3];
       for (let i = crtSequence.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -923,7 +912,6 @@
             document.getElementById('memory2-status').innerText = "1라운드 성공! 잠시 후 2라운드가 시작됩니다.";
             setTimeout(startCrtRound, 1200);
           } else {
-            // 2라운드 최종 성공
             const timeSpent = ((Date.now() - crtStartTime) / 1000).toFixed(2);
             playSound('success');
             document.getElementById('memory2-status').innerText = `모든 라운드 클리어! 소요시간: ${timeSpent}초`;
@@ -936,7 +924,6 @@
           }
         }
       } else {
-        // 실패
         isCrtActive = false;
         playSound('fail');
         document.getElementById('memory2-status').innerText = "틀렸습니다! 다시 시작하세요.";
@@ -945,9 +932,7 @@
       }
     }
 
-    /* =========================================================
-       4. 한자 그리기 퍼즐 (판정 대폭 완화)
-    ========================================================= */
+    /* 4. 한자 그리기 퍼즐 */
     const kanjiList = ['崇', '拜', '結', '鎭', '封', '祓'];
     let currentKanji = '';
     let guideCanvas, guideCtx, drawCanvas, drawCtx;
@@ -976,13 +961,13 @@
 
     function clearKanjiCanvas() {
       if (!guideCtx || !drawCtx) return;
-      guideCtx.clearRect(0, 0, 320, 320);
-      drawCtx.clearRect(0, 0, 320, 320);
+      guideCtx.clearRect(0, 0, 400, 400);
+      drawCtx.clearRect(0, 0, 400, 400);
     }
 
     function clearUserDraw() {
       if (!drawCtx) return;
-      drawCtx.clearRect(0, 0, 320, 320);
+      drawCtx.clearRect(0, 0, 400, 400);
       playSound('click');
       if (isKanjiActive) {
         document.getElementById('kanji-status').innerText = `지웠습니다. 다시 그리세요. [ ${currentKanji} ]`;
@@ -993,13 +978,13 @@
       clearKanjiCanvas();
       currentKanji = kanjiList[Math.floor(Math.random() * kanjiList.length)];
 
-      guideCtx.font = "bold 250px 'Gothic A1', 'Arial Black', sans-serif";
+      guideCtx.font = "bold 320px 'Gothic A1', 'Arial Black', sans-serif";
       guideCtx.textAlign = "center";
       guideCtx.textBaseline = "middle";
       guideCtx.fillStyle = "#2b1c08";
-      guideCtx.fillText(currentKanji, 160, 160);
+      guideCtx.fillText(currentKanji, 200, 200);
 
-      const imgData = guideCtx.getImageData(0, 0, 320, 320);
+      const imgData = guideCtx.getImageData(0, 0, 400, 400);
       guideTotalPixels = 0;
       for (let i = 3; i < imgData.data.length; i += 4) {
         if (imgData.data[i] > 30) guideTotalPixels++;
@@ -1008,7 +993,7 @@
       isKanjiActive = true;
       kanjiStartTime = Date.now();
       document.getElementById('kanji-status').innerText = `한자 [ ${currentKanji} ] 를 다 그린 후 [완료]를 누르세요!`;
-      
+
       document.getElementById('kanji-start-btn').disabled = true;
       document.getElementById('kanji-clear-btn').disabled = false;
       document.getElementById('kanji-submit-btn').disabled = false;
@@ -1029,8 +1014,8 @@
 
       drawCtx.beginPath();
       drawCtx.moveTo(pos.x, pos.y);
-      
-      drawCtx.lineWidth = 32; // 붓 두께 완화
+
+      drawCtx.lineWidth = 40;
       drawCtx.lineCap = 'round';
       drawCtx.lineJoin = 'round';
       drawCtx.strokeStyle = '#181109';
@@ -1052,8 +1037,8 @@
     function checkKanjiResult() {
       if (!isKanjiActive) return;
 
-      const drawImgData = drawCtx.getImageData(0, 0, 320, 320);
-      const guideImgData = guideCtx.getImageData(0, 0, 320, 320);
+      const drawImgData = drawCtx.getImageData(0, 0, 400, 400);
+      const guideImgData = guideCtx.getImageData(0, 0, 400, 400);
 
       let matchedPixels = 0;
 
@@ -1068,13 +1053,12 @@
 
       const fillRatio = matchedPixels / guideTotalPixels;
 
-      // 완성도 기준 50% 이상이면 전부 통과 (이탈 감지 해제)
       if (fillRatio >= 0.50) {
         isKanjiActive = false;
         const timeSpent = ((Date.now() - kanjiStartTime) / 1000).toFixed(2);
         playSound('success');
         document.getElementById('kanji-status').innerText = `성공! 소요시간: ${timeSpent}초 (완성도: ${Math.floor(fillRatio * 100)}%)`;
-        
+
         document.getElementById('kanji-start-btn').disabled = false;
         document.getElementById('kanji-clear-btn').disabled = true;
         document.getElementById('kanji-submit-btn').disabled = true;
@@ -1093,9 +1077,7 @@
       document.getElementById('kanji-status').innerText = `실패: ${reason}`;
     }
 
-    /* =========================================================
-       5. 1~4 숫자 반응 퍼즐
-    ========================================================= */
+    /* 5. 1~4 숫자 반응 퍼즐 */
     const spawnArea = document.getElementById('num-spawn-area');
     const numStatus = document.getElementById('num-status');
     const numLivesEl = document.getElementById('num-lives');
@@ -1145,8 +1127,8 @@
 
       currentNumTarget = Math.floor(Math.random() * 4) + 1;
 
-      const posX = Math.floor(Math.random() * 250);
-      const posY = Math.floor(Math.random() * 250);
+      const posX = Math.floor(Math.random() * 340);
+      const posY = Math.floor(Math.random() * 340);
 
       targetElement = document.createElement('div');
       targetElement.className = 'target-circle';
@@ -1236,9 +1218,7 @@
       }
     }
 
-    /* =========================================================
-       6. 퓨즈박스 퍼즐
-    ========================================================= */
+    /* 6. 퓨즈박스 퍼즐 */
     const fuseStatus = document.getElementById('fuse-status');
     const fuseCover = document.getElementById('fuse-cover');
     const fuseStartBtn = document.getElementById('fuse-start-btn');
@@ -1254,7 +1234,7 @@
     let isDragging = false;
     let prevAngle = 0;
     let currentRotation = 0;
-    const REQUIRED_ROTATION = Math.PI * 4; // 2바퀴 = 720도
+    const REQUIRED_ROTATION = Math.PI * 4;
 
     screws.forEach(screw => {
       screw.addEventListener('click', (e) => handleScrewClick(e));
