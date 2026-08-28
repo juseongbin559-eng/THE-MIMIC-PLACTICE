@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>더 미믹 퍼즐 연습장 (The Mimic Practice)</title>
+  <title>더 미믹 퍼즐 연습장</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,12 +15,13 @@
     body {
       background-color: #0d0d12;
       color: #e0e0e0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 15px;
+      position: relative;
     }
     header {
       text-align: center;
@@ -47,6 +48,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
+      margin-bottom: 70px; /* 하단 구석 버튼 공간 확보 */
     }
     .card {
       background: #181824;
@@ -77,6 +79,32 @@
       font-size: 0.7rem;
       color: #fffa65;
       font-weight: bold;
+    }
+    /* 왼쪽 아래 구석 고정 랭킹 & 업적 바 */
+    .bottom-left-menu {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 90;
+    }
+    .mini-btn {
+      background: #181824;
+      border: 1px solid #333344;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .mini-btn:active {
+      transform: scale(0.95);
     }
     .stage {
       display: none;
@@ -132,56 +160,12 @@
       border-color: #ff6b81;
       box-shadow: 0 0 15px #ff4757;
     }
-    /* CRT 모니터 */
-    .crt-screen {
-      width: 240px;
-      height: 180px;
-      background: #050508;
-      border: 4px solid #333;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 15px 0;
-      position: relative;
-    }
-    .shape-target {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #2ed573;
-    }
-    .shape-circle { border-radius: 50%; }
-    .shape-triangle {
-      width: 0; height: 0;
-      border-left: 35px solid transparent;
-      border-right: 35px solid transparent;
-      border-bottom: 60px solid #2ed573;
-      border-top: none;
-    }
-    /* 한자 정화 */
+    /* 한자 정화 & 전선 */
     canvas {
       background: #111118;
       border: 2px solid #444;
       border-radius: 12px;
       touch-action: none;
-    }
-    /* 1~4 숫자 */
-    .num-pad {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      width: 100%;
-      max-width: 260px;
-      margin: 15px 0;
-    }
-    .num-btn {
-      height: 80px;
-      font-size: 1.8rem;
-      font-weight: bold;
-      background: #252538;
-      color: #fff;
-      border: 2px solid #3d3d5c;
-      border-radius: 12px;
     }
     /* 퓨즈박스 */
     .fuse-grid {
@@ -240,48 +224,31 @@
     <div id="lobby-view">
       <div class="card-grid">
         <div class="card" onclick="openStage('mem1')">
-          <h3>🧠 기억력 퍼즐 1</h3>
-          <p class="desc">순서대로 켜지는 불빛을 기억하세요</p>
+          <h3>🧠 기억력 퍼즐</h3>
+          <p class="desc">순서대로 켜지는 불빛 패턴을 기억하세요</p>
           <div id="rec-mem1" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('crt')">
-          <h3>📺 CRT 모니터</h3>
-          <p class="desc">화면에 나타난 알맞은 도형을 맞추세요</p>
-          <div id="rec-crt" class="record">최고기록: -</div>
         </div>
         <div class="card" onclick="openStage('kanji')">
           <h3>🖌️ 한자 정화</h3>
-          <p class="desc">결계 한자(結, 鎭, 封)를 정밀하게 덮어쓰세요</p>
+          <p class="desc">결계 한자(崇, 拜, 結, 鎭, 封, 祓)를 정밀하게 정화하세요</p>
           <div id="rec-kanji" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('num')">
-          <h3>⚡ 1~4 숫자</h3>
-          <p class="desc">지시어에 맞춰 빠른 속도로 클릭하세요</p>
-          <div id="rec-num" class="record">최고기록: -</div>
         </div>
         <div class="card" onclick="openStage('fuse')">
           <h3>🔧 퓨즈박스</h3>
-          <p class="desc">모든 스위치 전원을 올바르게 켜세요</p>
+          <p class="desc">모든 스위치 전원을 올바르게 맞추세요</p>
           <div id="rec-fuse" class="record">최고기록: -</div>
         </div>
-
-        <!-- 랭킹 & 업적 카드 -->
-        <div class="card" style="border-color:#ffd700;" onclick="showLeaderboardModal()">
-          <h3 style="color:#ffd700;">👑 명예의 전당</h3>
-          <p class="desc">각 퍼즐별 최고 기록 TOP 3</p>
-          <div id="record-rank" class="record">기록 확인하기</div>
-        </div>
-        <div class="card" style="border-color:#6a5acd;" onclick="showAchievementModal()">
-          <h3 style="color:#9b59b6;">🏆 업적 및 배지</h3>
-          <p class="desc">도전 과제 달성 현황</p>
-          <div id="record-achievement" class="record">달성도: 0 / 11</div>
+        <div class="card" onclick="openStage('wire')">
+          <h3>🔌 전선 연결</h3>
+          <p class="desc">같은 색상의 전선을 반대편으로 드래그해 연결하세요</p>
+          <div id="rec-wire" class="record">최고기록: -</div>
         </div>
       </div>
     </div>
 
     <!-- 퍼즐 1: 기억력 -->
     <div id="stage-mem1" class="stage">
-      <h2>🧠 기억력 퍼즐 1</h2>
+      <h2>🧠 기억력 퍼즐</h2>
       <div id="timer-mem1" class="timer-display">0.00초</div>
       <div class="mem-grid">
         <div class="mem-btn" onclick="pressMem(0)"></div>
@@ -298,51 +265,19 @@
       <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
     </div>
 
-    <!-- 퍼즐 2: CRT 모니터 -->
-    <div id="stage-crt" class="stage">
-      <h2>📺 CRT 모니터 도형</h2>
-      <div id="timer-crt" class="timer-display">0.00초</div>
-      <div class="crt-screen">
-        <div id="crt-target" class="shape-target"></div>
-      </div>
-      <div style="display:flex; gap:10px; margin-bottom:15px;">
-        <button class="nav-btn" onclick="checkCRT('square')">네모</button>
-        <button class="nav-btn" onclick="checkCRT('circle')">원</button>
-        <button class="nav-btn" onclick="checkCRT('triangle')">세모</button>
-      </div>
-      <button class="nav-btn" onclick="startCRT()">시작</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 3: 한자 정화 -->
+    <!-- 퍼즐 2: 한자 정화 -->
     <div id="stage-kanji" class="stage">
       <h2 id="kanji-title">🖌️ 한자 정화 (結)</h2>
       <div id="timer-kanji" class="timer-display">0.00초</div>
       <canvas id="kanji-canvas" width="260" height="260"></canvas>
       <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="nav-btn" onclick="clearCanvas()">지우기</button>
+        <button class="nav-btn" onclick="clearKanjiCanvas()">지우기</button>
         <button class="nav-btn" style="background:#2ed573;" onclick="checkKanji()">정화 완료</button>
       </div>
       <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
     </div>
 
-    <!-- 퍼즐 4: 1~4 숫자 -->
-    <div id="stage-num" class="stage">
-      <h2>⚡ 1~4 숫자 퍼즐</h2>
-      <div id="timer-num" class="timer-display">남은시간: 15.0초</div>
-      <div id="num-target-text" style="font-size:1.5rem; font-weight:bold; color:#fffa65; margin:10px 0;">[ 준비 ]</div>
-      <div id="num-info" style="font-size:0.9rem; margin-bottom:10px;">점수: 0 | 목숨: ❤️❤️❤️</div>
-      <div class="num-pad">
-        <button class="num-btn" onclick="pressNum(1)">1</button>
-        <button class="num-btn" onclick="pressNum(2)">2</button>
-        <button class="num-btn" onclick="pressNum(3)">3</button>
-        <button class="num-btn" onclick="pressNum(4)">4</button>
-      </div>
-      <button class="nav-btn" onclick="startNumGame()">게임 시작</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 5: 퓨즈박스 -->
+    <!-- 퍼즐 3: 퓨즈박스 -->
     <div id="stage-fuse" class="stage">
       <h2>🔧 퓨즈박스 퍼즐</h2>
       <div id="timer-fuse" class="timer-display">0.00초</div>
@@ -355,9 +290,28 @@
       <button class="nav-btn" onclick="startFuse()">스위치 리셋</button>
       <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
     </div>
+
+    <!-- 퍼즐 4: 전선 퍼즐 -->
+    <div id="stage-wire" class="stage">
+      <h2>🔌 전선 연결 퍼즐</h2>
+      <div id="timer-wire" class="timer-display">0.00초</div>
+      <canvas id="wire-canvas" width="300" height="240"></canvas>
+      <button class="nav-btn" style="margin-top:12px;" onclick="resetWireGame()">전선 섞기</button>
+      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
+    </div>
   </div>
 
-  <!-- 랭킹 모달 팝업 -->
+  <!-- 왼쪽 아래 구석 랭킹 & 업적 메뉴 -->
+  <div id="bottom-left-menu" class="bottom-left-menu">
+    <div class="mini-btn" style="border-color:#ffd700;" onclick="showLeaderboardModal()">
+      <span>👑</span> 랭킹
+    </div>
+    <div class="mini-btn" style="border-color:#6a5acd;" onclick="showAchievementModal()">
+      <span>🏆</span> 업적 <span id="achieve-badge-count" style="color:#2ed573;">(0/11)</span>
+    </div>
+  </div>
+
+  <!-- 랭킹 모달 -->
   <div id="rank-modal" class="modal-overlay">
     <div class="modal-content" style="border:2px solid #ffd700;">
       <h2 style="text-align:center; margin-bottom:20px; color:#ffd700;">👑 퍼즐별 최고 기록</h2>
@@ -368,7 +322,7 @@
     </div>
   </div>
 
-  <!-- 업적 모달 팝업 -->
+  <!-- 업적 모달 -->
   <div id="achievement-modal" class="modal-overlay">
     <div class="modal-content" style="border:2px solid #6a5acd;">
       <h2 style="text-align:center; margin-bottom:20px; color:#9b59b6;">🏆 업적 목록</h2>
@@ -380,7 +334,6 @@
   </div>
 
   <script>
-    // Global States & Timer
     let activeStageId = '';
     let timerInterval = null;
     let startTime = 0;
@@ -388,21 +341,22 @@
 
     const ACHIEVEMENTS = [
       { id: 'first_clear', title: '🐣 퍼즐 입문자', desc: '아무 퍼즐이나 처음으로 1회 클리어' },
-      { id: 'clear_mem1', title: '🧠 기억력 마스터', desc: '기억력 퍼즐 1 클리어' },
-      { id: 'clear_mem2', title: '📺 도형의 지배자', desc: 'CRT 모니터 도형 퍼즐 클리어' },
+      { id: 'clear_mem', title: '🧠 기억력 마스터', desc: '기억력 퍼즐 클리어' },
       { id: 'clear_kanji', title: '🖌️ 붓끝의 정화자', desc: '한자 정화 퍼즐 클리어' },
-      { id: 'clear_num', title: '⚡ 순발력 왕', desc: '1~4 숫자 퍼즐 15점 이상 달성' },
       { id: 'clear_fuse', title: '🔧 엔지니어', desc: '퓨즈박스 퍼즐 클리어' },
+      { id: 'clear_wire', title: '🔌 전기 기술자', desc: '전선 연결 퍼즐 클리어' },
       { id: 'speed_demon', title: '⏱️ 스피드 데몬', desc: '아무 퍼즐이나 10초 이내에 클리어' },
+      { id: 'super_speed', title: '⚡ 빛의 속도', desc: '아무 퍼즐이나 5초 이내에 클리어' },
       { id: 'perfect_kanji', title: '💯 완벽주의자', desc: '한자 퍼즐 완성도 85% 이상으로 클리어' },
-      { id: 'clutch_god', title: '❤️‍🔥 불굴의 의지', desc: '숫자 퍼즐 목숨 1개 상태로 10점 이상 달성' },
-      { id: 'all_puzzles', title: '👑 더미믹 훈장', desc: '5개 모든 퍼즐 최소 1회 클리어' },
+      { id: 'kanji_master', title: '📜 서예 대가', desc: '한자 정화 퍼즐 3회 이상 클리어' },
+      { id: 'all_puzzles', title: '👑 더미믹 훈장', desc: '4개 모든 퍼즐 최소 1회 클리어' },
       { id: 'master_hunter', title: '🏆 트로피 헌터', desc: '다른 모든 업적 10개 획득' }
     ];
 
     window.onload = function() {
       updateLobbyDisplay();
       initKanjiCanvas();
+      initWireCanvas();
     };
 
     function startTimer(elementId) {
@@ -422,32 +376,30 @@
 
     function openStage(id) {
       document.getElementById('lobby-view').style.display = 'none';
+      document.getElementById('bottom-left-menu').style.display = 'none';
       document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
       const st = document.getElementById('stage-' + id);
       if (st) st.classList.add('active');
       activeStageId = id;
 
       if (id === 'kanji') resetKanji();
+      if (id === 'wire') resetWireGame();
     }
 
     function closeStage() {
       clearInterval(timerInterval);
       document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
       document.getElementById('lobby-view').style.display = 'block';
+      document.getElementById('bottom-left-menu').style.display = 'flex';
       updateLobbyDisplay();
     }
 
-    // --- LocalStorage Records & Leaderboards & Achievements ---
-    function saveScore(puzzleName, score, unit = '초') {
+    // --- Records & Achievements ---
+    function saveScore(puzzleName, score) {
       let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
       if (!records[puzzleName]) records[puzzleName] = [];
-      
       records[puzzleName].push(parseFloat(score));
-      if (unit === '초') {
-        records[puzzleName].sort((a, b) => a - b);
-      } else {
-        records[puzzleName].sort((a, b) => b - a);
-      }
+      records[puzzleName].sort((a, b) => a - b);
       records[puzzleName] = records[puzzleName].slice(0, 3);
       localStorage.setItem('mimic_rankings', JSON.stringify(records));
     }
@@ -476,45 +428,43 @@
         cleared.push(activeStageId);
         localStorage.setItem('mimic_cleared_puzzles', JSON.stringify(cleared));
       }
-      if (cleared.length >= 5) {
+      if (cleared.length >= 4) {
         unlockAchievement('all_puzzles');
       }
     }
 
-    function onPuzzleSuccess(puzzleName, score, unit = '초', extraData = {}) {
-      saveScore(puzzleName, score, unit);
+    function onPuzzleSuccess(puzzleName, score, extraData = {}) {
+      saveScore(puzzleName, score);
       unlockAchievement('first_clear');
       checkAllPuzzlesCleared();
 
-      if (unit === '초' && parseFloat(score) <= 10.0) {
-        unlockAchievement('speed_demon');
-      }
+      const timeVal = parseFloat(score);
+      if (timeVal <= 10.0) unlockAchievement('speed_demon');
+      if (timeVal <= 5.0) unlockAchievement('super_speed');
 
-      if (puzzleName === '기억력 퍼즐 1') unlockAchievement('clear_mem1');
-      if (puzzleName === 'CRT 모니터') unlockAchievement('clear_mem2');
+      if (puzzleName === '기억력 퍼즐') unlockAchievement('clear_mem');
       if (puzzleName === '한자 정화') {
         unlockAchievement('clear_kanji');
         if (extraData.ratio >= 0.85) unlockAchievement('perfect_kanji');
-      }
-      if (puzzleName === '1~4 숫자') {
-        if (score >= 15) unlockAchievement('clear_num');
-        if (score >= 10 && extraData.lives === 1) unlockAchievement('clutch_god');
+        let kanjiCount = (parseInt(localStorage.getItem('mimic_kanji_clears') || '0')) + 1;
+        localStorage.setItem('mimic_kanji_clears', kanjiCount.toString());
+        if (kanjiCount >= 3) unlockAchievement('kanji_master');
       }
       if (puzzleName === '퓨즈박스') unlockAchievement('clear_fuse');
+      if (puzzleName === '전선 연결') unlockAchievement('clear_wire');
     }
 
     function updateLobbyDisplay() {
       let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
-      const getTop = (key, unit) => records[key] && records[key][0] ? `최고기록: ${records[key][0]}${unit}` : '최고기록: -';
+      const getTop = (key) => records[key] && records[key][0] ? `최고기록: ${records[key][0]}초` : '최고기록: -';
       
-      document.getElementById('rec-mem1').innerText = getTop('기억력 퍼즐 1', '초');
-      document.getElementById('rec-crt').innerText = getTop('CRT 모니터', '초');
-      document.getElementById('rec-kanji').innerText = getTop('한자 정화', '초');
-      document.getElementById('rec-num').innerText = getTop('1~4 숫자', '점');
-      document.getElementById('rec-fuse').innerText = getTop('퓨즈박스', '초');
+      document.getElementById('rec-mem1').innerText = getTop('기억력 퍼즐');
+      document.getElementById('rec-kanji').innerText = getTop('한자 정화');
+      document.getElementById('rec-fuse').innerText = getTop('퓨즈박스');
+      document.getElementById('rec-wire').innerText = getTop('전선 연결');
 
       let unlocked = JSON.parse(localStorage.getItem('mimic_achievements') || '[]');
-      document.getElementById('record-achievement').innerText = `달성도: ${unlocked.length} / 11`;
+      document.getElementById('achieve-badge-count').innerText = `(${unlocked.length}/11)`;
     }
 
     // --- 1. 기억력 퍼즐 ---
@@ -547,7 +497,7 @@
         if (memUserIdx === memSequence.length) {
           const t = stopTimer();
           alert(`성공! 기록: ${t}초`);
-          onPuzzleSuccess('기억력 퍼즐 1', t, '초');
+          onPuzzleSuccess('기억력 퍼즐', t);
           memSequence = [];
         }
       } else {
@@ -557,140 +507,77 @@
       }
     }
 
-    // --- 2. CRT 모니터 ---
-    let crtCurrentShape = '';
-    function startCRT() {
-      const shapes = ['square', 'circle', 'triangle'];
-      crtCurrentShape = shapes[Math.floor(Math.random() * shapes.length)];
-      const target = document.getElementById('crt-target');
-      target.className = 'shape-target';
-      if (crtCurrentShape === 'circle') target.classList.add('shape-circle');
-      if (crtCurrentShape === 'triangle') target.classList.add('shape-triangle');
-      startTimer('timer-crt');
-    }
-    function checkCRT(shape) {
-      if (!crtCurrentShape) return;
-      if (shape === crtCurrentShape) {
-        const t = stopTimer();
-        alert(`정답입니다! 기록: ${t}초`);
-        onPuzzleSuccess('CRT 모니터', t, '초');
-        crtCurrentShape = '';
-      } else {
-        alert('오답!');
-      }
-    }
-
-    // --- 3. 한자 정화 ---
-    let canvas, ctx, isDrawing = false;
-    const kanjiList = ['結', '鎭', '封'];
+    // --- 2. 한자 정화 ---
+    let kCanvas, kCtx, isKDrawing = false;
+    const kanjiList = ['崇', '拜', '結', '鎭', '封', '祓'];
     let currentKanji = '結';
 
     function initKanjiCanvas() {
-      canvas = document.getElementById('kanji-canvas');
-      ctx = canvas.getContext('2d');
+      kCanvas = document.getElementById('kanji-canvas');
+      kCtx = kCanvas.getContext('2d');
 
       const getPos = (e) => {
-        const rect = canvas.getBoundingClientRect();
+        const rect = kCanvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: clientX - rect.left, y: clientY - rect.top };
       };
 
-      const startDraw = (e) => { isDrawing = true; draw(e); };
-      const endDraw = () => { isDrawing = false; ctx.beginPath(); };
+      const startDraw = (e) => { isKDrawing = true; draw(e); };
+      const endDraw = () => { isKDrawing = false; kCtx.beginPath(); };
       const draw = (e) => {
-        if (!isDrawing) return;
+        if (!isKDrawing) return;
         const pos = getPos(e);
-        ctx.lineWidth = 14;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#ff4757';
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        kCtx.lineWidth = 14;
+        kCtx.lineCap = 'round';
+        kCtx.strokeStyle = '#ff4757';
+        kCtx.lineTo(pos.x, pos.y);
+        kCtx.stroke();
+        kCtx.beginPath();
+        kCtx.moveTo(pos.x, pos.y);
       };
 
-      canvas.addEventListener('mousedown', startDraw);
-      canvas.addEventListener('mouseup', endDraw);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('touchstart', startDraw);
-      canvas.addEventListener('touchend', endDraw);
-      canvas.addEventListener('touchmove', draw);
+      kCanvas.addEventListener('mousedown', startDraw);
+      kCanvas.addEventListener('mouseup', endDraw);
+      kCanvas.addEventListener('mousemove', draw);
+      kCanvas.addEventListener('touchstart', startDraw);
+      kCanvas.addEventListener('touchend', endDraw);
+      kCanvas.addEventListener('touchmove', draw);
     }
 
     function resetKanji() {
       currentKanji = kanjiList[Math.floor(Math.random() * kanjiList.length)];
       document.getElementById('kanji-title').innerText = `🖌️ 한자 정화 (${currentKanji})`;
-      clearCanvas();
+      clearKanjiCanvas();
       startTimer('timer-kanji');
     }
 
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '140px sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(currentKanji, canvas.width / 2, canvas.height / 2);
+    function clearKanjiCanvas() {
+      kCtx.clearRect(0, 0, kCanvas.width, kCanvas.height);
+      kCtx.font = '130px sans-serif';
+      kCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      kCtx.textAlign = 'center';
+      kCtx.textBaseline = 'middle';
+      kCtx.fillText(currentKanji, kCanvas.width / 2, kCanvas.height / 2);
     }
 
     function checkKanji() {
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const imgData = kCtx.getImageData(0, 0, kCanvas.width, kCanvas.height).data;
       let redPixels = 0;
       for (let i = 0; i < imgData.length; i += 4) {
         if (imgData[i] > 200 && imgData[i+1] < 100) redPixels++;
       }
-      const ratio = redPixels / (canvas.width * canvas.height * 0.15);
+      const ratio = redPixels / (kCanvas.width * kCanvas.height * 0.12);
       if (ratio >= 0.5) {
         const t = stopTimer();
         alert(`정화 성공! (완성도: ${Math.min(100, Math.round(ratio*100))}%) 기록: ${t}초`);
-        onPuzzleSuccess('한자 정화', t, '초', { ratio });
+        onPuzzleSuccess('한자 정화', t, { ratio });
       } else {
         alert('한자를 더 꼼꼼하게 덮어쓰세요!');
       }
     }
 
-    // --- 4. 1~4 숫자 ---
-    let numScore = 0, numLives = 3, numTarget = 0, numTimer = null, numLeftTime = 15;
-    function startNumGame() {
-      numScore = 0;
-      numLives = 3;
-      numLeftTime = 15.0;
-      nextNumTarget();
-      clearInterval(numTimer);
-      numTimer = setInterval(() => {
-        numLeftTime -= 0.1;
-        document.getElementById('timer-num').innerText = `남은시간: ${Math.max(0, numLeftTime).toFixed(1)}초`;
-        if (numLeftTime <= 0) {
-          clearInterval(numTimer);
-          alert(`시간 종료! 최종 점수: ${numScore}점`);
-          onPuzzleSuccess('1~4 숫자', numScore, '점', { lives: numLives });
-        }
-      }, 100);
-    }
-    function nextNumTarget() {
-      numTarget = Math.floor(Math.random() * 4) + 1;
-      document.getElementById('num-target-text').innerText = `[ ${numTarget} ] 클릭!`;
-      document.getElementById('num-info').innerText = `점수: ${numScore} | 목숨: ${'❤️'.repeat(numLives)}`;
-    }
-    function pressNum(val) {
-      if (numLeftTime <= 0) return;
-      if (val === numTarget) {
-        numScore++;
-        nextNumTarget();
-      } else {
-        numLives--;
-        if (numLives <= 0) {
-          clearInterval(numTimer);
-          alert(`게임 오버! 최종 점수: ${numScore}점`);
-          onPuzzleSuccess('1~4 숫자', numScore, '점', { lives: 0 });
-        } else {
-          nextNumTarget();
-        }
-      }
-    }
-
-    // --- 5. 퓨즈박스 ---
+    // --- 3. 퓨즈박스 ---
     let fuseState = [false, false, false, false];
     function startFuse() {
       fuseState = [false, false, false, false];
@@ -705,7 +592,7 @@
       if (fuseState.every(v => v === true)) {
         const t = stopTimer();
         alert(`퓨즈 가동 완료! 기록: ${t}초`);
-        onPuzzleSuccess('퓨즈박스', t, '초');
+        onPuzzleSuccess('퓨즈박스', t);
       }
     }
     function updateFuseUI() {
@@ -716,31 +603,146 @@
       });
     }
 
+    // --- 4. 전선 연결 퍼즐 ---
+    let wCanvas, wCtx;
+    const WIRE_COLORS = ['#ff4757', '#2ed573', '#1e90ff', '#ffa500'];
+    let leftWires = [], rightWires = [], connections = {};
+    let draggingWire = null, dragPos = { x: 0, y: 0 };
+
+    function initWireCanvas() {
+      wCanvas = document.getElementById('wire-canvas');
+      wCtx = wCanvas.getContext('2d');
+
+      const getPos = (e) => {
+        const rect = wCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const onStart = (e) => {
+        const pos = getPos(e);
+        leftWires.forEach((w) => {
+          if (Math.hypot(w.x - pos.x, w.y - pos.y) < 25) {
+            draggingWire = w;
+            dragPos = pos;
+          }
+        });
+      };
+
+      const onMove = (e) => {
+        if (!draggingWire) return;
+        dragPos = getPos(e);
+        drawWires();
+      };
+
+      const onEnd = () => {
+        if (!draggingWire) return;
+        rightWires.forEach((rw) => {
+          if (Math.hypot(rw.x - dragPos.x, rw.y - dragPos.y) < 25) {
+            connections[draggingWire.color] = rw.color;
+          }
+        });
+        draggingWire = null;
+        drawWires();
+        checkWireWin();
+      };
+
+      wCanvas.addEventListener('mousedown', onStart);
+      wCanvas.addEventListener('mousemove', onMove);
+      wCanvas.addEventListener('mouseup', onEnd);
+      wCanvas.addEventListener('touchstart', onStart);
+      wCanvas.addEventListener('touchmove', onMove);
+      wCanvas.addEventListener('touchend', onEnd);
+    }
+
+    function resetWireGame() {
+      connections = {};
+      let colors1 = [...WIRE_COLORS].sort(() => Math.random() - 0.5);
+      let colors2 = [...WIRE_COLORS].sort(() => Math.random() - 0.5);
+
+      leftWires = colors1.map((c, i) => ({ color: c, x: 25, y: 40 + i * 50 }));
+      rightWires = colors2.map((c, i) => ({ color: c, x: 275, y: 40 + i * 50 }));
+
+      drawWires();
+      startTimer('timer-wire');
+    }
+
+    function drawWires() {
+      wCtx.clearRect(0, 0, wCanvas.width, wCanvas.height);
+
+      // 이미 연결된 전선 그리기
+      Object.keys(connections).forEach((lColor) => {
+        const rColor = connections[lColor];
+        const lw = leftWires.find(w => w.color === lColor);
+        const rw = rightWires.find(w => w.color === rColor);
+
+        wCtx.beginPath();
+        wCtx.lineWidth = 8;
+        wCtx.strokeStyle = lColor;
+        wCtx.moveTo(lw.x, lw.y);
+        wCtx.lineTo(rw.x, rw.y);
+        wCtx.stroke();
+      });
+
+      // 드래그 중인 전선 그리기
+      if (draggingWire) {
+        wCtx.beginPath();
+        wCtx.lineWidth = 8;
+        wCtx.strokeStyle = draggingWire.color;
+        wCtx.moveTo(draggingWire.x, draggingWire.y);
+        wCtx.lineTo(dragPos.x, dragPos.y);
+        wCtx.stroke();
+      }
+
+      // 왼쪽 & 오른쪽 단자 그리기
+      leftWires.forEach(w => drawTerminal(w.x, w.y, w.color));
+      rightWires.forEach(w => drawTerminal(w.x, w.y, w.color));
+    }
+
+    function drawTerminal(x, y, color) {
+      wCtx.beginPath();
+      wCtx.arc(x, y, 12, 0, Math.PI * 2);
+      wCtx.fillStyle = color;
+      wCtx.fill();
+      wCtx.lineWidth = 3;
+      wCtx.strokeStyle = '#ffffff';
+      wCtx.stroke();
+    }
+
+    function checkWireWin() {
+      const keys = Object.keys(connections);
+      if (keys.length === 4) {
+        const isCorrect = keys.every(k => k === connections[k]);
+        if (isCorrect) {
+          const t = stopTimer();
+          alert(`전선 연결 성공! 기록: ${t}초`);
+          onPuzzleSuccess('전선 연결', t);
+        } else {
+          alert('색상이 맞지 않은 전선이 있습니다!');
+        }
+      }
+    }
+
     // --- Modals ---
     function showLeaderboardModal() {
       const modal = document.getElementById('rank-modal');
       const listEl = document.getElementById('rank-list');
       let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
 
-      const puzzleList = [
-        { id: '기억력 퍼즐 1', unit: '초' },
-        { id: 'CRT 모니터', unit: '초' },
-        { id: '한자 정화', unit: '초' },
-        { id: '1~4 숫자', unit: '점' },
-        { id: '퓨즈박스', unit: '초' }
-      ];
+      const puzzleList = ['기억력 퍼즐', '한자 정화', '퓨즈박스', '전선 연결'];
 
       listEl.innerHTML = '';
       puzzleList.forEach(p => {
-        const scores = records[p.id] || [];
+        const scores = records[p] || [];
         const item = document.createElement('div');
         item.style.cssText = `background:#222230; border:1px solid #444; border-radius:10px; padding:12px;`;
         let scoreHTML = scores.length > 0 
-          ? scores.map((s, idx) => `<span style="color:${idx===0?'#ffd700':idx===1?'#c0c0c0':'#cd7f32'}; font-weight:bold;">${idx+1}위: ${s}${p.unit}</span>`).join(' | ')
+          ? scores.map((s, idx) => `<span style="color:${idx===0?'#ffd700':idx===1?'#c0c0c0':'#cd7f32'}; font-weight:bold;">${idx+1}위: ${s}초</span>`).join(' | ')
           : '<span style="color:#666;">기록 없음</span>';
 
         item.innerHTML = `
-          <div style="font-weight:bold; margin-bottom:4px; color:#fff;">🧩 ${p.id}</div>
+          <div style="font-weight:bold; margin-bottom:4px; color:#fff;">🧩 ${p}</div>
           <div style="font-size:13px;">${scoreHTML}</div>
         `;
         listEl.appendChild(item);
