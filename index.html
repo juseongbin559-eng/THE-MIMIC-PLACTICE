@@ -48,7 +48,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
-      margin-bottom: 70px; /* 하단 구석 버튼 공간 확보 */
+      margin-bottom: 70px; /* 구석 메뉴 버튼 공간 확보 */
     }
     .card {
       background: #181824;
@@ -80,6 +80,7 @@
       color: #fffa65;
       font-weight: bold;
     }
+
     /* 왼쪽 아래 구석 고정 랭킹 & 업적 바 */
     .bottom-left-menu {
       position: fixed;
@@ -106,6 +107,7 @@
     .mini-btn:active {
       transform: scale(0.95);
     }
+
     .stage {
       display: none;
       background: #181824;
@@ -139,6 +141,7 @@
       color: #2ed573;
       margin-bottom: 12px;
     }
+
     /* 기억력 퍼즐 */
     .mem-grid {
       display: grid;
@@ -160,13 +163,15 @@
       border-color: #ff6b81;
       box-shadow: 0 0 15px #ff4757;
     }
-    /* 한자 정화 & 전선 */
+
+    /* 캔버스 (한자 & 전선) */
     canvas {
       background: #111118;
       border: 2px solid #444;
       border-radius: 12px;
       touch-action: none;
     }
+
     /* 퓨즈박스 */
     .fuse-grid {
       display: grid;
@@ -185,12 +190,15 @@
       justify-content: center;
       font-weight: bold;
       color: #fffa65;
+      cursor: pointer;
     }
     .fuse-slot.on {
       border-color: #2ed573;
       box-shadow: 0 0 10px #2ed573;
+      color: #2ed573;
     }
-    /* 모달 공통 */
+
+    /* 모달 */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -384,6 +392,7 @@
 
       if (id === 'kanji') resetKanji();
       if (id === 'wire') resetWireGame();
+      if (id === 'fuse') startFuse();
     }
 
     function closeStage() {
@@ -671,7 +680,7 @@
     function drawWires() {
       wCtx.clearRect(0, 0, wCanvas.width, wCanvas.height);
 
-      // 이미 연결된 전선 그리기
+      // 연결된 전선
       Object.keys(connections).forEach((lColor) => {
         const rColor = connections[lColor];
         const lw = leftWires.find(w => w.color === lColor);
@@ -685,7 +694,7 @@
         wCtx.stroke();
       });
 
-      // 드래그 중인 전선 그리기
+      // 드래그 중인 전선
       if (draggingWire) {
         wCtx.beginPath();
         wCtx.lineWidth = 8;
@@ -695,7 +704,7 @@
         wCtx.stroke();
       }
 
-      // 왼쪽 & 오른쪽 단자 그리기
+      // 단자
       leftWires.forEach(w => drawTerminal(w.x, w.y, w.color));
       rightWires.forEach(w => drawTerminal(w.x, w.y, w.color));
     }
