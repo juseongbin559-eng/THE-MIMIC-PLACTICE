@@ -118,3 +118,120 @@ window.addEventListener('DOMContentLoaded', () => {
   renderBestRecords();
   renderAchievements();
 });
+// ==========================================
+// 1. 모달 열기 / 닫기 로직
+// ==========================================
+
+function openRankings() {
+  const modal = document.getElementById('rankings-modal');
+  if (modal) {
+    modal.classList.add('active');
+    renderBestRecords(); // 열 때 최신 기록 갱신
+    renderAchievements(); // 열 때 최신 업적 갱신
+  }
+}
+
+function closeRankings() {
+  const modal = document.getElementById('rankings-modal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+// 배경 검은 영역 클릭 시 닫기
+window.addEventListener('click', (e) => {
+  const modal = document.getElementById('rankings-modal');
+  if (e.target === modal) {
+    closeRankings();
+  }
+});
+
+
+// ==========================================
+// 2. 종목별 최고 기록 & 업적 데이터/UI
+// ==========================================
+
+const GAMES = [
+  { id: 'memory1', name: '기억력 퍼즐 1' },
+  { id: 'memory2', name: '기억력 퍼즐 2' },
+  { id: 'kanji', name: '한자 정화' },
+  { id: 'numbers', name: '1~4 숫자' },
+  { id: 'fuse', name: '퓨즈박스' },
+  { id: 'wiring', name: '발전기 전선' }
+];
+
+const ACHIEVEMENTS = [
+  { id: 'first_clear', icon: '🐣', title: '첫 걸음', desc: '아무 퍼즐이나 1회 클리어' },
+  { id: 'speed_demon', icon: '⚡', title: '스피드 레이서', desc: '3초 이내 퍼즐 클리어' },
+  { id: 'fuse_master', icon: '🛠️', title: '엔지니어', desc: '퓨즈박스 10초 이내 클리어' }
+];
+
+function renderBestRecords() {
+  const container = document.getElementById('records-grid');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  GAMES.forEach(game => {
+    const bestRecord = localStorage.getItem(`best_${game.id}`);
+    const timeText = bestRecord ? `${parseFloat(bestRecord).toFixed(2)}초` : '기록 없음';
+
+    const card = document.createElement('div');
+    card.className = 'record-card';
+    card.innerHTML = `
+      <span class="game-title">${game.name}</span>
+      <span class="record-value">${timeText}</span>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateBestRecord(gameId, clearTime) {
+  const currentBest = localStorage.getItem(`best_${gameId}`);
+
+  if (!currentBest || clearTime < parseFloat(currentBest)) {
+    localStorage.setItem(`best_${gameId}`, clearTime);
+    alert(`🎉 신기록 달성!\n소요 시간: ${clearTime.toFixed(2)}초`);
+  }
+
+  checkAchievements(gameId, clearTime);
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievements-grid');
+  if (!container) return;
+
+  const unlocked = JSON.parse(localStorage.getItem('unlocked_achievements') || '[]');
+  container.innerHTML = '';
+
+  ACHIEVEMENTS.forEach(ach => {
+    const isUnlocked = unlocked.includes(ach.id);
+
+    const card = document.createElement('div');
+    card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+    card.innerHTML = `
+      <div class="ach-icon">${isUnlocked ? ach.icon : '🔒'}</div>
+      <div class="ach-info">
+        <div class="ach-title">${ach.title}</div>
+        <div class="ach-desc">${ach.desc}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function checkAchievements(gameId, clearTime) {
+  unlockAchievement('first_clear');
+  if (clearTime <= 3.0) unlockAchievement('speed_demon');
+  if (gameId === 'fuse' && clearTime <= 10.0) unlockAchievement('fuse_master');
+}
+
+function unlockAchievement(achievementId) {
+  const unlocked = JSON.parse(localStorage.getItem('unlocked_achievements') || '[]');
+
+  if (!unlocked.includes(achievementId)) {
+    unlocked.push(achievementId);
+    localStorage.setItem('unlocked_achievements', JSON.stringify(unlocked));
+    alert(`🏆 업적 달성!`);
+  }
+}
