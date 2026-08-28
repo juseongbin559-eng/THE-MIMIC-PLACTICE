@@ -234,4 +234,251 @@ function unlockAchievement(achievementId) {
     localStorage.setItem('unlocked_achievements', JSON.stringify(unlocked));
     alert(`🏆 업적 달성!`);
   }
+}// Web Audio API 효과음 엔진
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  const now = audioCtx.currentTime;
+
+  if (type === 'shoot') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(10, now + 0.12);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.start(now); osc.stop(now + 0.12);
+  } else if (type === 'hit') {
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    osc.start(now); osc.stop(now + 0.15);
+  } else if (type === 'spider_dead') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523, now);
+    osc.frequency.setValueAtTime(659, now + 0.1);
+    osc.frequency.setValueAtTime(783, now + 0.2);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+    osc.start(now); osc.stop(now + 0.4);
+  } else if (type === 'monster_appear') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(90, now);
+    osc.frequency.linearRampToValueAtTime(30, now + 0.5);
+    gain.gain.setValueAtTime(0.6, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    osc.start(now); osc.stop(now + 0.5);
+  } else if (type === 'timing_success') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    osc.start(now); osc.stop(now + 0.15);
+  } else if (type === 'fail') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, now);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+}
+
+// 거미 퍼즐 변수
+let ammo = 15;
+let spiderHp = 15;
+let isHiddenGame = false;
+let timingSuccessCount = 0;
+let hiddenTimer = 10;
+let timerInterval = null;
+
+let angle = 0;
+const centerX = 400;
+const centerY = 275;
+const scaleX = 250;
+const scaleY = 120;
+const speed = 0.055;
+
+const spider = document.getElementById('spider');
+const monster = document.getElementById('monster');
+const ammoDisplay = document.getElementById('ammo');
+const hpDisplay = document.getElementById('hp');
+const gameContainer = document.getElementById('game-container');
+const timingContainer = document.getElementById('timing-container');
+const whiteZone = document.getElementById('white-zone');
+const redBar = document.getElementById('red-bar');
+const timingStatus = document.getElementById('timing-status');
+const successCountDisplay = document.getElementById('success-count');
+const hiddenTimerDisplay = document.getElementById('hidden-timer');
+const overlay = document.getElementById('spider-overlay');
+
+function openSpiderGame() {
+  document.getElementById('spider-modal').classList.add('active');
+  restartSpiderGame();
+}
+
+function closeSpiderGame() {
+  document.getElementById('spider-modal').classList.remove('active');
+  clearInterval(timerInterval);
+  isHiddenGame = false;
+}
+
+function moveSpider() {
+  const modal = document.getElementById('spider-modal');
+  if (modal && modal.classList.contains('active') && !isHiddenGame && spiderHp > 0) {
+    angle += speed;
+    const x = centerX + (scaleX * Math.cos(angle)) / (1 + Math.sin(angle) * Math.sin(angle));
+    const y = centerY + (scaleY * Math.sin(angle) * Math.cos(angle)) / (1 + Math.sin(angle) * Math.sin(angle));
+    spider.style.left = `${x}px`;
+    spider.style.top = `${y}px`;
+  }
+  requestAnimationFrame(moveSpider);
+}
+moveSpider();
+
+if (gameContainer) {
+  gameContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('close-modal-btn')) return;
+    if (isHiddenGame || ammo <= 0 || spiderHp <= 0) return;
+
+    ammo--;
+    ammoDisplay.textContent = ammo;
+
+    if (e.target === spider) {
+      spiderHp--;
+      hpDisplay.textContent = spiderHp;
+      playSound('hit');
+
+      spider.style.filter = 'brightness(3) contrast(1.5)';
+      setTimeout(() => {
+        spider.style.filter = 'brightness(1.7) contrast(1.2) grayscale(0.1)';
+      }, 100);
+
+      if (spiderHp <= 0) {
+        playSound('spider_dead');
+        spider.style.display = 'none';
+        overlay.style.display = 'flex';
+        const recordElem = document.getElementById('card-spider-record');
+        if (recordElem) recordElem.textContent = '최고 기록: 클리어!';
+        return;
+      }
+    } else {
+      playSound('shoot');
+    }
+
+    if (ammo === 0 && spiderHp > 0) {
+      startHiddenGame();
+    }
+  });
+}
+
+let redBarPos = 0;
+let redBarSpeed = 10;
+let redBarDir = 1;
+let timingAnimationId = null;
+let whiteZoneLeft = 0;
+
+function startHiddenGame() {
+  isHiddenGame = true;
+  timingSuccessCount = 0;
+  hiddenTimer = 10;
+
+  playSound('monster_appear');
+
+  monster.classList.add('active');
+  timingContainer.classList.add('active');
+  timingStatus.classList.add('active');
+  successCountDisplay.textContent = timingSuccessCount;
+  hiddenTimerDisplay.textContent = hiddenTimer;
+
+  resetTimingBar();
+  animateRedBar();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    hiddenTimer--;
+    hiddenTimerDisplay.textContent = hiddenTimer;
+
+    if (hiddenTimer <= 0) {
+      clearInterval(timerInterval);
+      playSound('fail');
+      alert('⏰ 시간이 초과되었습니다!');
+      startHiddenGame();
+    }
+  }, 1000);
+}
+
+function resetTimingBar() {
+  whiteZoneLeft = Math.floor(Math.random() * (480 - 75 - 40)) + 20;
+  whiteZone.style.left = `${whiteZoneLeft}px`;
+  redBarPos = 0;
+}
+
+function animateRedBar() {
+  if (!isHiddenGame) return;
+
+  redBarPos += redBarSpeed * redBarDir;
+  if (redBarPos >= 470) { redBarPos = 470; redBarDir = -1; }
+  else if (redBarPos <= 0) { redBarPos = 0; redBarDir = 1; }
+
+  redBar.style.left = `${redBarPos}px`;
+  timingAnimationId = requestAnimationFrame(animateRedBar);
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && isHiddenGame) {
+    e.preventDefault();
+
+    const redBarCenter = redBarPos + 5;
+    const isSuccess = redBarCenter >= whiteZoneLeft && redBarCenter <= (whiteZoneLeft + 75);
+
+    if (isSuccess) {
+      playSound('timing_success');
+      timingSuccessCount++;
+      successCountDisplay.textContent = timingSuccessCount;
+
+      if (timingSuccessCount >= 3) {
+        endHiddenGame();
+      } else {
+        resetTimingBar();
+      }
+    } else {
+      playSound('fail');
+    }
+  }
+});
+
+function endHiddenGame() {
+  isHiddenGame = false;
+  clearInterval(timerInterval);
+  cancelAnimationFrame(timingAnimationId);
+
+  monster.classList.remove('active');
+  timingContainer.classList.remove('active');
+  timingStatus.classList.remove('active');
+
+  ammo = 15;
+  ammoDisplay.textContent = ammo;
+}
+
+function restartSpiderGame() {
+  ammo = 15;
+  spiderHp = 15;
+  isHiddenGame = false;
+  clearInterval(timerInterval);
+
+  ammoDisplay.textContent = ammo;
+  hpDisplay.textContent = spiderHp;
+  spider.style.display = 'block';
+  overlay.style.display = 'none';
+
+  monster.classList.remove('active');
+  timingContainer.classList.remove('active');
+  timingStatus.classList.remove('active');
 }
