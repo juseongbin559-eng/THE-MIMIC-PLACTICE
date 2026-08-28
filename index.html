@@ -2,980 +2,1442 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>더 미믹 퍼즐 연습장 (6종 통합)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>더미믹 퍼즐 트레이너</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
-      -webkit-user-select: none;
     }
+
     body {
-      background-color: #0d0d12;
-      color: #e0e0e0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
+      background-color: #0d0d11;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 15px;
-      position: relative;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
     }
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    h1 {
-      font-size: 1.6rem;
-      color: #ff4757;
-      margin-bottom: 5px;
-      text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
-    }
-    p.sub {
-      font-size: 0.85rem;
-      color: #888;
-    }
-    .container {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
+
+    .screen {
+      display: none;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .active-screen { display: flex; }
+
+    h1 {
+      font-size: 28px;
+      letter-spacing: 3px;
+      margin-bottom: 25px;
+      color: #e0e0e0;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 { font-size: 22px; letter-spacing: 2px; margin-bottom: 10px; }
+
+    /* 로비 UI */
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 200px);
       gap: 15px;
     }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      margin-bottom: 75px; /* 구석 고정 메뉴 공간 확보 */
-    }
+
     .card {
-      background: #181824;
-      border: 1px solid #2e2e42;
+      background: #18181f;
+      border: 1px solid #2e2e3e;
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px 12px;
+      text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .card:active {
-      transform: scale(0.97);
-      background: #222235;
-    }
-    .card h3 {
-      font-size: 0.95rem;
-      color: #ffffff;
-      margin-bottom: 6px;
-    }
-    .card p.desc {
-      font-size: 0.75rem;
-      color: #aaa;
-      margin-bottom: 10px;
-    }
-    .card .record {
-      font-size: 0.7rem;
-      color: #fffa65;
-      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
-    /* 왼쪽 아래 구석 고정 랭킹 & 업적 바 */
-    .bottom-left-menu {
-      position: fixed;
-      bottom: 15px;
-      left: 15px;
-      display: flex;
-      gap: 8px;
-      z-index: 90;
-    }
-    .mini-btn {
-      background: #181824;
-      border: 1px solid #333344;
-      border-radius: 20px;
-      padding: 8px 14px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-    }
-    .mini-btn:active {
-      transform: scale(0.95);
+    .card:hover {
+      background: #22222d;
+      border-color: #6a5acd;
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(106, 90, 205, 0.3);
     }
 
-    .stage {
-      display: none;
-      background: #181824;
-      border: 1px solid #2e2e42;
-      border-radius: 16px;
-      padding: 20px;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      width: 100%;
-    }
-    .stage.active {
-      display: flex;
-    }
-    .nav-btn {
-      background: #2e2e42;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-    .nav-btn:active {
-      background: #444466;
-    }
-    .timer-display {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #2ed573;
-      margin-bottom: 12px;
+    .card h3 { font-size: 15px; margin-bottom: 6px; color: #ffffff; }
+    .card .desc { font-size: 11px; color: #888899; margin-bottom: 10px; }
+    .card .record { font-size: 11px; color: #4cd137; font-weight: bold; }
+
+    .status {
+      margin: 10px 0;
+      font-size: 15px;
+      min-height: 24px;
+      color: #aaaaaa;
+      text-align: center;
     }
 
-    /* 1. 기억력 */
-    .mem-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .btn-container {
+      display: flex;
       gap: 10px;
-      width: 100%;
-      max-width: 280px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav-btn {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      background: #2a2a38;
+      color: #ffffff;
+      border: 1px solid #444458;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover { background: #3b3b4f; }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .action-btn { background: #4a3410; border-color: #8c6820; }
+    .action-btn:hover { background: #634616; }
+
+    .submit-btn { background: #2e7d32; border-color: #4caf50; }
+    .submit-btn:hover { background: #388e3c; }
+
+    /* 1. 메모리 퍼즐 1 UI */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 85px);
+      grid-template-rows: repeat(3, 85px);
+      gap: 12px;
       margin: 15px 0;
     }
-    .mem-btn {
-      aspect-ratio: 1;
-      background: #2a2a3d;
-      border: 2px solid #3f3f5a;
+
+    .btn-pad {
+      background-color: #1a1a24;
+      border: 2px solid #333344;
       border-radius: 10px;
       cursor: pointer;
-    }
-    .mem-btn.active {
-      background: #ff4757;
-      border-color: #ff6b81;
-      box-shadow: 0 0 15px #ff4757;
+      transition: background-color 0.15s, box-shadow 0.15s;
     }
 
-    /* 캔버스 공통 */
-    canvas {
-      background: #111118;
-      border: 2px solid #444;
+    .btn-pad.active {
+      background-color: #ffffff !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 20px #ffffff;
+    }
+
+    .btn-pad.error {
+      background-color: #ff3344 !important;
+      border-color: #ff3344 !important;
+      box-shadow: 0 0 20px #ff3344;
+    }
+
+    /* 2. 한자 그리기 퍼즐 UI */
+    .hanji-board {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, #b88f38 0%, #8c6820 100%);
+      border: 6px solid #4a3410;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6), 0 10px 25px rgba(0, 0, 0, 0.8);
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    canvas { position: absolute; top: 0; left: 0; }
+    #guide-canvas { z-index: 1; opacity: 0.22; }
+    #draw-canvas { z-index: 2; cursor: crosshair; }
+
+    .kanji-info { font-size: 14px; color: #bbbbcc; margin-bottom: 5px; }
+
+    /* 3. 1~4 숫자 반응속도 퍼즐 UI */
+    .num-spawn-area {
+      position: relative;
+      width: 340px;
+      height: 340px;
+      background: #14141a;
+      border: 3px solid #2e2e3e;
       border-radius: 12px;
-      touch-action: none;
+      margin: 10px 0;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
     }
 
-    /* 3. 퓨즈박스 */
-    .fuse-grid {
+    .target-circle {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #2a2a38;
+      border: 3px solid #d4af37;
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+      transition: transform 0.1s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .target-circle.hit {
+      background-color: #2e7d32 !important;
+      border-color: #4cd137 !important;
+      box-shadow: 0 0 25px #4cd137 !important;
+      transform: scale(1.15);
+    }
+
+    .target-circle.miss {
+      background-color: #c62828 !important;
+      border-color: #ff3344 !important;
+      box-shadow: 0 0 25px #ff3344 !important;
+      transform: scale(0.85);
+    }
+
+    .timer-bar-container {
+      width: 44px;
+      height: 5px;
+      background: #111;
+      border-radius: 3px;
+      margin-top: 2px;
+      overflow: hidden;
+    }
+
+    .timer-bar {
+      width: 100%;
+      height: 100%;
+      background: #d4af37;
+    }
+
+    .lives-info { font-size: 15px; color: #ff5555; margin-bottom: 5px; }
+
+    /* 4. 퓨즈박스 퍼즐 UI */
+    .fusebox-container {
+      position: relative;
+      width: 240px;
+      height: 380px;
+      background: #2a2c33;
+      border: 5px solid #1a1b20;
+      border-radius: 10px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.9);
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .fusebox-inner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #15161a;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 15px 20px;
+    }
+
+    .wire-lane {
+      position: relative;
+      width: 32px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .wire-segment {
+      position: absolute;
+      width: 10px;
+      border-radius: 3px;
+      box-shadow: inset 2px 0 4px rgba(255, 255, 255, 0.3), 0 0 6px rgba(0, 0, 0, 0.8);
+    }
+
+    .wire-segment.red { background: #d63031; }
+    .wire-segment.blue { background: #0984e3; }
+    .wire-segment.yellow { background: #fdcb6e; }
+
+    .wire-cut-point {
+      position: absolute;
+      width: 30px;
+      height: 22px;
+      border: 2px dashed #ff3344;
+      background: rgba(255, 51, 68, 0.3);
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 8px #ff3344;
+      animation: pulse 0.8s infinite alternate;
+      z-index: 5;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.92); opacity: 0.7; }
+      100% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .fusebox-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #484b54, #32343b);
+      border: 3px solid #5a5d68;
+      border-radius: 6px;
+      z-index: 10;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fusebox-cover.open { transform: translateY(105%); }
+
+    .cover-title {
+      font-size: 14px;
+      color: #8a8d9b;
+      font-weight: bold;
+      letter-spacing: 2px;
+      border: 1px solid #6a6d7b;
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+
+    .screw {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #8a8d9b 0%, #484b54 80%);
+      border: 2px solid #222328;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+      z-index: 15;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .screw:hover {
+      box-shadow: 0 0 12px #d4af37;
+      transform: scale(1.1);
+    }
+
+    .screw-slot {
+      width: 18px;
+      height: 4px;
+      background: #1a1b20;
+      border-radius: 2px;
+    }
+
+    .screw.top-left { top: 12px; left: 12px; }
+    .screw.top-right { top: 12px; right: 12px; }
+    .screw.bottom-left { bottom: 12px; left: 12px; }
+    .screw.bottom-right { bottom: 12px; right: 12px; }
+    .screw.removed { opacity: 0; pointer-events: none; }
+
+    .screw-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #a0a3b0 0%, #3a3c44 85%);
+      border: 4px solid #111215;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.6), 0 0 10px #000;
+      z-index: 25;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s;
+    }
+
+    .screw-overlay.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .screw-overlay .big-slot {
+      width: 65px;
+      height: 10px;
+      background: #111215;
+      border-radius: 4px;
+    }
+
+    /* 5. 메모리 게임 2 (CRT 레트로 모니터 UI) */
+    .crt-monitor-frame {
+      width: 320px;
+      background: #2b2b2b;
+      border: 8px solid #1a1a1a;
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .crt-screen {
+      width: 100%;
+      height: 200px;
+      background: #051405;
+      border: 4px solid #002b00;
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.2);
+      overflow: hidden;
+    }
+
+    /* CRT 주사선 효과 */
+    .crt-screen::before {
+      content: " ";
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    #crt-canvas {
+      z-index: 2;
+    }
+
+    .crt-buttons {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin: 15px 0;
+      width: 100%;
+      margin-top: 15px;
     }
-    .fuse-slot {
-      width: 50px;
-      height: 70px;
-      background: #222233;
-      border: 2px solid #444;
-      border-radius: 6px;
+
+    .crt-btn {
+      background: #1e221e;
+      border: 2px solid #00ff41;
+      border-radius: 8px;
+      height: 55px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      color: #fffa65;
-      cursor: pointer;
-    }
-    .fuse-slot.on {
-      border-color: #2ed573;
-      box-shadow: 0 0 10px #2ed573;
-      color: #2ed573;
+      box-shadow: 0 4px 0 #005511;
+      transition: all 0.1s;
     }
 
-    /* 5. 비밀번호 입력 (키패드) */
-    .keypad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: 100%;
-      max-width: 240px;
-      margin: 15px 0;
-    }
-    .key-btn {
-      background: #2a2a3d;
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #fff;
-      cursor: pointer;
-      text-align: center;
-    }
-    .key-btn:active {
-      background: #444466;
-    }
-    .code-display {
-      background: #0d0d12;
-      border: 2px solid #ff4757;
-      border-radius: 8px;
-      padding: 10px;
-      width: 100%;
-      max-width: 240px;
-      text-align: center;
-      font-size: 1.5rem;
-      letter-spacing: 8px;
-      color: #fffa65;
-      margin-bottom: 10px;
+    .crt-btn:active, .crt-btn.active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #005511;
+      background: #00ff41;
     }
 
-    /* 모달 */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
+    .crt-btn:active svg, .crt-btn.active svg {
+      stroke: #051405;
     }
-    .modal-content {
-      background: #181824;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 20px;
+
+    .crt-btn svg {
+      width: 28px;
+      height: 28px;
+      stroke: #00ff41;
+      stroke-width: 2.5;
+      fill: none;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>더 미믹 퍼즐 연습장</h1>
-    <p class="sub">The Mimic (전체 6종 퍼즐 완전체)</p>
-  </header>
-
-  <div class="container">
-    <!-- 로비 화면 (6개 카드) -->
-    <div id="lobby-view">
-      <div class="card-grid">
-        <div class="card" onclick="openStage('mem1')">
-          <h3>🧠 기억력 퍼즐</h3>
-          <p class="desc">순서대로 켜지는 불빛 패턴 기억하기</p>
-          <div id="rec-mem1" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('kanji')">
-          <h3>🖌️ 한자 정화</h3>
-          <p class="desc">결계 한자(崇, 拜, 結, 鎭, 封, 祓) 정화</p>
-          <div id="rec-kanji" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('fuse')">
-          <h3>🔧 퓨즈박스</h3>
-          <p class="desc">모든 스위치 전원올리기</p>
-          <div id="rec-fuse" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('wire')">
-          <h3>🔌 전선 연결</h3>
-          <p class="desc">같은 색상 전선 알맞게 연결</p>
-          <div id="rec-wire" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('code')">
-          <h3>🔢 암호 해독</h3>
-          <p class="desc">힌트를 보고 4자리 암호 맞추기</p>
-          <div id="rec-code" class="record">최고기록: -</div>
-        </div>
-        <div class="card" onclick="openStage('maze')">
-          <h3>🌀 미로 탈출</h3>
-          <p class="desc">원형 도달 탈출 미로 퍼즐</p>
-          <div id="rec-maze" class="record">최고기록: -</div>
-        </div>
+  <!-- [1] 로비 화면 -->
+  <div id="lobby-screen" class="screen active-screen">
+    <h1>THE MIMIC TRAINER</h1>
+    <div class="puzzle-grid">
+      <div class="card" onclick="showScreen('memory-game')">
+        <h3>기억력 퍼즐 1</h3>
+        <p class="desc">3x3 버튼 패턴 순서 외우기</p>
+        <div id="record-memory" class="record">최고 기록: 없음</div>
       </div>
-    </div>
-
-    <!-- 퍼즐 1: 기억력 -->
-    <div id="stage-mem1" class="stage">
-      <h2>🧠 기억력 퍼즐</h2>
-      <div id="timer-mem1" class="timer-display">0.00초</div>
-      <div class="mem-grid">
-        <div class="mem-btn" onclick="pressMem(0)"></div>
-        <div class="mem-btn" onclick="pressMem(1)"></div>
-        <div class="mem-btn" onclick="pressMem(2)"></div>
-        <div class="mem-btn" onclick="pressMem(3)"></div>
-        <div class="mem-btn" onclick="pressMem(4)"></div>
-        <div class="mem-btn" onclick="pressMem(5)"></div>
-        <div class="mem-btn" onclick="pressMem(6)"></div>
-        <div class="mem-btn" onclick="pressMem(7)"></div>
-        <div class="mem-btn" onclick="pressMem(8)"></div>
+      <div class="card" onclick="showScreen('memory2-game')">
+        <h3>기억력 퍼즐 2</h3>
+        <p class="desc">CRT 모니터 도형 순서 (2R)</p>
+        <div id="record-memory2" class="record">최고 기록: 없음</div>
       </div>
-      <button class="nav-btn" onclick="startMem1()">게임 시작</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 2: 한자 정화 -->
-    <div id="stage-kanji" class="stage">
-      <h2 id="kanji-title">🖌️ 한자 정화 (結)</h2>
-      <div id="timer-kanji" class="timer-display">0.00초</div>
-      <canvas id="kanji-canvas" width="260" height="260"></canvas>
-      <div style="display:flex; gap:10px; margin-top:12px;">
-        <button class="nav-btn" onclick="clearKanjiCanvas()">지우기</button>
-        <button class="nav-btn" style="background:#2ed573;" onclick="checkKanji()">정화 완료</button>
+      <div class="card" onclick="showScreen('kanji-game')">
+        <h3>한자 정화 퍼즐</h3>
+        <p class="desc">북2 챕터 1,4 한자 따라 그리기</p>
+        <div id="record-kanji" class="record">최고 기록: 없음</div>
       </div>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 3: 퓨즈박스 -->
-    <div id="stage-fuse" class="stage">
-      <h2>🔧 퓨즈박스 퍼즐</h2>
-      <div id="timer-fuse" class="timer-display">0.00초</div>
-      <div class="fuse-grid">
-        <div class="fuse-slot" onclick="toggleFuse(0)">1</div>
-        <div class="fuse-slot" onclick="toggleFuse(1)">2</div>
-        <div class="fuse-slot" onclick="toggleFuse(2)">3</div>
-        <div class="fuse-slot" onclick="toggleFuse(3)">4</div>
+      <div class="card" onclick="showScreen('num-game')">
+        <h3>1~4 숫자 퍼즐</h3>
+        <p class="desc">북2 챕터 3,4 랜덤 숫자 키 누르기</p>
+        <div id="record-num" class="record">최고 기록: 없음</div>
       </div>
-      <button class="nav-btn" onclick="startFuse()">스위치 리셋</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 4: 전선 퍼즐 -->
-    <div id="stage-wire" class="stage">
-      <h2>🔌 전선 연결 퍼즐</h2>
-      <div id="timer-wire" class="timer-display">0.00초</div>
-      <canvas id="wire-canvas" width="300" height="240"></canvas>
-      <button class="nav-btn" style="margin-top:12px;" onclick="resetWireGame()">전선 섞기</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 5: 암호 해독 -->
-    <div id="stage-code" class="stage">
-      <h2>🔢 암호 해독</h2>
-      <div id="timer-code" class="timer-display">0.00초</div>
-      <p id="code-hint" style="color:#fffa65; margin-bottom:10px; font-weight:bold;">암호: ????</p>
-      <div id="code-display" class="code-display">----</div>
-      <div class="keypad-grid">
-        <div class="key-btn" onclick="pressKey('1')">1</div>
-        <div class="key-btn" onclick="pressKey('2')">2</div>
-        <div class="key-btn" onclick="pressKey('3')">3</div>
-        <div class="key-btn" onclick="pressKey('4')">4</div>
-        <div class="key-btn" onclick="pressKey('5')">5</div>
-        <div class="key-btn" onclick="pressKey('6')">6</div>
-        <div class="key-btn" onclick="pressKey('7')">7</div>
-        <div class="key-btn" onclick="pressKey('8')">8</div>
-        <div class="key-btn" onclick="pressKey('9')">9</div>
-        <div class="key-btn" style="background:#ff4757;" onclick="clearKey()">C</div>
-        <div class="key-btn" onclick="pressKey('0')">0</div>
-        <div class="key-btn" style="background:#2ed573;" onclick="checkCode()">OK</div>
-      </div>
-      <button class="nav-btn" style="background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-
-    <!-- 퍼즐 6: 미로 탈출 -->
-    <div id="stage-maze" class="stage">
-      <h2>🌀 미로 탈출 퍼즐</h2>
-      <div id="timer-maze" class="timer-display">0.00초</div>
-      <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">빨간 공을 드래그해 초록 골인 지점으로 이동하세요</p>
-      <canvas id="maze-canvas" width="260" height="260"></canvas>
-      <button class="nav-btn" style="margin-top:12px;" onclick="resetMaze()">미로 다시 생성</button>
-      <button class="nav-btn" style="margin-top:8px; background:#444;" onclick="closeStage()">로비로</button>
-    </div>
-  </div>
-
-  <!-- 왼쪽 아래 구석 랭킹 & 업적 메뉴 -->
-  <div id="bottom-left-menu" class="bottom-left-menu">
-    <div class="mini-btn" style="border-color:#ffd700;" onclick="showLeaderboardModal()">
-      <span>👑</span> 랭킹
-    </div>
-    <div class="mini-btn" style="border-color:#6a5acd;" onclick="showAchievementModal()">
-      <span>🏆</span> 업적 <span id="achieve-badge-count" style="color:#2ed573;">(0/12)</span>
-    </div>
-  </div>
-
-  <!-- 랭킹 모달 -->
-  <div id="rank-modal" class="modal-overlay">
-    <div class="modal-content" style="border:2px solid #ffd700;">
-      <h2 style="text-align:center; margin-bottom:20px; color:#ffd700;">👑 퍼즐별 최고 기록</h2>
-      <div id="rank-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-      <div style="text-align:center; margin-top:20px;">
-        <button class="nav-btn" onclick="closeLeaderboardModal()">닫기</button>
+      <div class="card" onclick="showScreen('fuse-game')">
+        <h3>퓨즈박스 퍼즐</h3>
+        <p class="desc">북3 챕터 1 나사 풀기 & 전선 절단</p>
+        <div id="record-fuse" class="record">최고 기록: 없음</div>
       </div>
     </div>
   </div>
 
-  <!-- 업적 모달 -->
-  <div id="achievement-modal" class="modal-overlay">
-    <div class="modal-content" style="border:2px solid #6a5acd;">
-      <h2 style="text-align:center; margin-bottom:20px; color:#9b59b6;">🏆 업적 목록</h2>
-      <div id="achievement-list" style="display:grid; gap:10px;"></div>
-      <div style="text-align:center; margin-top:20px;">
-        <button class="nav-btn" onclick="closeAchievementModal()">닫기</button>
+  <!-- [2] 메모리 게임 1 화면 -->
+  <div id="memory-game" class="screen">
+    <h2>MEMORIES PUZZLE 1</h2>
+    <div id="memory-status" class="status">게임 시작 버튼을 눌러주세요</div>
+
+    <div class="memory-grid">
+      <button class="btn-pad" data-id="0"></button>
+      <button class="btn-pad" data-id="1"></button>
+      <button class="btn-pad" data-id="2"></button>
+      <button class="btn-pad" data-id="3"></button>
+      <button class="btn-pad" data-id="4"></button>
+      <button class="btn-pad" data-id="5"></button>
+      <button class="btn-pad" data-id="6"></button>
+      <button class="btn-pad" data-id="7"></button>
+      <button class="btn-pad" data-id="8"></button>
+    </div>
+
+    <div class="btn-container">
+      <button id="memory-start-btn" class="nav-btn" onclick="startMemoryGame()">게임 시작</button>
+      <button class="nav-btn" onclick="showScreen('lobby-screen')">로비로 나가기</button>
+    </div>
+  </div>
+
+  <!-- [3] 메모리 게임 2 화면 (CRT 모니터 도형 퍼즐) -->
+  <div id="memory2-game" class="screen">
+    <h2>CRT SHAPE MEMORY</h2>
+    <div id="memory2-status" class="status">모니터에 나오는 도형 순서를 기억하세요!</div>
+
+    <div class="crt-monitor-frame">
+      <div class="crt-screen">
+        <canvas id="crt-canvas" width="260" height="180"></canvas>
       </div>
+      <div class="crt-buttons">
+        <!-- 삼각형(0) -->
+        <button class="crt-btn" onclick="handleCrtInput(0)">
+          <svg viewBox="0 0 24 24"><polygon points="12,3 2,21 22,21"/></svg>
+        </button>
+        <!-- 사각형(1) -->
+        <button class="crt-btn" onclick="handleCrtInput(1)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/></svg>
+        </button>
+        <!-- 사다리꼴(2) -->
+        <button class="crt-btn" onclick="handleCrtInput(2)">
+          <svg viewBox="0 0 24 24"><polygon points="6,4 18,4 22,20 2,20"/></svg>
+        </button>
+        <!-- 원(3) -->
+        <button class="crt-btn" onclick="handleCrtInput(3)">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="btn-container">
+      <button id="memory2-start-btn" class="nav-btn" onclick="startMemory2Game()">게임 시작</button>
+      <button class="nav-btn" onclick="showScreen('lobby-screen')">로비로 나가기</button>
+    </div>
+  </div>
+
+  <!-- [4] 한자 그리기 퍼즐 화면 -->
+  <div id="kanji-game" class="screen">
+    <h2>한자 정화 퍼즐</h2>
+    <div id="kanji-info" class="kanji-info">대충 따라 그린 뒤 [완료]를 누르세요! (판정 완화됨)</div>
+    <div id="kanji-status" class="status">게임 시작 버튼을 눌러주세요</div>
+
+    <div class="hanji-board">
+      <canvas id="guide-canvas" width="320" height="320"></canvas>
+      <canvas id="draw-canvas" width="320" height="320"></canvas>
+    </div>
+
+    <div class="btn-container">
+      <button id="kanji-start-btn" class="nav-btn" onclick="startKanjiGame()">게임 시작</button>
+      <button id="kanji-clear-btn" class="nav-btn action-btn" onclick="clearUserDraw()" disabled>지우기</button>
+      <button id="kanji-submit-btn" class="nav-btn submit-btn" onclick="checkKanjiResult()" disabled>완료</button>
+      <button class="nav-btn" onclick="showScreen('lobby-screen')">로비로 나가기</button>
+    </div>
+  </div>
+
+  <!-- [5] 1~4 숫자 반응 퍼즐 -->
+  <div id="num-game" class="screen">
+    <h2>1-4 KEYPAD SPEED PUZZLE</h2>
+    <div id="num-lives" class="lives-info">기회: ❤️❤️❤️❤️</div>
+    <div id="num-status" class="status">키보드의 [1, 2, 3, 4] 키를 사용하세요</div>
+
+    <div id="num-spawn-area" class="num-spawn-area"></div>
+
+    <div class="btn-container">
+      <button id="num-start-btn" class="nav-btn" onclick="startNumGame()">게임 시작</button>
+      <button class="nav-btn" onclick="showScreen('lobby-screen')">로비로 나가기</button>
+    </div>
+  </div>
+
+  <!-- [6] 퓨즈박스 퍼즐 화면 -->
+  <div id="fuse-game" class="screen">
+    <h2>FUSE BOX PUZZLE</h2>
+    <div id="fuse-status" class="status">나사를 클릭한 후 마우스로 반시계 방향 드래그하세요!</div>
+
+    <div class="fusebox-container" id="fusebox-container">
+      <div class="fusebox-inner" id="fuse-inner">
+        <div class="wire-lane" id="wire-lane-0"></div>
+        <div class="wire-lane" id="wire-lane-1"></div>
+        <div class="wire-lane" id="wire-lane-2"></div>
+      </div>
+
+      <div class="fusebox-cover" id="fuse-cover">
+        <div class="cover-title">DANGER</div>
+        <div class="screw top-left" data-id="0"><div class="screw-slot"></div></div>
+        <div class="screw top-right" data-id="1"><div class="screw-slot"></div></div>
+        <div class="screw bottom-left" data-id="2"><div class="screw-slot"></div></div>
+        <div class="screw bottom-right" data-id="3"><div class="screw-slot"></div></div>
+      </div>
+
+      <div class="screw-overlay" id="big-screw"><div class="big-slot"></div></div>
+    </div>
+
+    <div class="btn-container">
+      <button id="fuse-start-btn" class="nav-btn" onclick="startFuseGame()">게임 시작</button>
+      <button class="nav-btn" onclick="showScreen('lobby-screen')">로비로 나가기</button>
     </div>
   </div>
 
   <script>
-    let activeStageId = '';
-    let timerInterval = null;
-    let startTime = 0;
-    let currentElapsed = 0;
+    /* =========================================================
+       0. Web Audio API 효과음
+    ========================================================= */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    const ACHIEVEMENTS = [
-      { id: 'first_clear', title: '🐣 퍼즐 입문자', desc: '아무 퍼즐이나 처음으로 1회 클리어' },
-      { id: 'clear_mem', title: '🧠 기억력 마스터', desc: '기억력 퍼즐 클리어' },
-      { id: 'clear_kanji', title: '🖌️ 붓끝의 정화자', desc: '한자 정화 퍼즐 클리어' },
-      { id: 'clear_fuse', title: '🔧 엔지니어', desc: '퓨즈박스 퍼즐 클리어' },
-      { id: 'clear_wire', title: '🔌 전기 기술자', desc: '전선 연결 퍼즐 클리어' },
-      { id: 'clear_code', title: '🔢 천재 해커', desc: '암호 해독 퍼즐 클리어' },
-      { id: 'clear_maze', title: '🌀 탈출 전문가', desc: '미로 탈출 퍼즐 클리어' },
-      { id: 'speed_demon', title: '⏱️ 스피드 데몬', desc: '아무 퍼즐이나 10초 이내에 클리어' },
-      { id: 'super_speed', title: '⚡ 빛의 속도', desc: '아무 퍼즐이나 5초 이내에 클리어' },
-      { id: 'perfect_kanji', title: '💯 완벽주의자', desc: '한자 퍼즐 완성도 85% 이상으로 클리어' },
-      { id: 'all_puzzles', title: '👑 더미믹 마스터', desc: '6개 모든 퍼즐 최소 1회 클리어' },
-      { id: 'master_hunter', title: '🏆 트로피 헌터', desc: '다른 모든 업적 11개 획득' }
-    ];
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
 
-    window.onload = function() {
-      updateLobbyDisplay();
-      initKanjiCanvas();
-      initWireCanvas();
-      initMazeCanvas();
-    };
-
-    function startTimer(elementId) {
-      clearInterval(timerInterval);
-      startTime = Date.now();
-      timerInterval = setInterval(() => {
-        currentElapsed = (Date.now() - startTime) / 1000;
-        const el = document.getElementById(elementId);
-        if (el) el.innerText = currentElapsed.toFixed(2) + '초';
-      }, 30);
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-      return currentElapsed.toFixed(2);
-    }
-
-    function openStage(id) {
-      document.getElementById('lobby-view').style.display = 'none';
-      document.getElementById('bottom-left-menu').style.display = 'none';
-      document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
-      const st = document.getElementById('stage-' + id);
-      if (st) st.classList.add('active');
-      activeStageId = id;
-
-      if (id === 'kanji') resetKanji();
-      if (id === 'wire') resetWireGame();
-      if (id === 'fuse') startFuse();
-      if (id === 'code') resetCodeGame();
-      if (id === 'maze') resetMaze();
-    }
-
-    function closeStage() {
-      clearInterval(timerInterval);
-      document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
-      document.getElementById('lobby-view').style.display = 'block';
-      document.getElementById('bottom-left-menu').style.display = 'flex';
-      updateLobbyDisplay();
-    }
-
-    // --- Records & Achievements System ---
-    function saveScore(puzzleName, score) {
-      let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
-      if (!records[puzzleName]) records[puzzleName] = [];
-      records[puzzleName].push(parseFloat(score));
-      records[puzzleName].sort((a, b) => a - b);
-      records[puzzleName] = records[puzzleName].slice(0, 3);
-      localStorage.setItem('mimic_rankings', JSON.stringify(records));
-    }
-
-    function unlockAchievement(id) {
-      let unlocked = JSON.parse(localStorage.getItem('mimic_achievements') || '[]');
-      if (!unlocked.includes(id)) {
-        unlocked.push(id);
-        localStorage.setItem('mimic_achievements', JSON.stringify(unlocked));
-        const ach = ACHIEVEMENTS.find(a => a.id === id);
-        alert(`🏆 업적 달성!: [${ach ? ach.title : id}]`);
-        checkMasterHunter();
+      if (type === 'success') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.3);
+        });
+      } else if (type === 'fail') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.35);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'click') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(350, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (type === 'cut') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
       }
     }
 
-    function checkMasterHunter() {
-      let unlocked = JSON.parse(localStorage.getItem('mimic_achievements') || '[]');
-      if (unlocked.length >= 11 && !unlocked.includes('master_hunter')) {
-        unlockAchievement('master_hunter');
+    /* =========================================================
+       1. 로비 & 기록관리
+    ========================================================= */
+    function updateLobbyRecords() {
+      const memoryBest = localStorage.getItem('mimic_best_memory');
+      const memory2Best = localStorage.getItem('mimic_best_memory2');
+      const kanjiBest = localStorage.getItem('mimic_best_kanji');
+      const numBest = localStorage.getItem('mimic_best_num_score');
+      const fuseBest = localStorage.getItem('mimic_best_fuse');
+
+      document.getElementById('record-memory').innerText = memoryBest 
+        ? `최고 기록: ${memoryBest}초` : "최고 기록: 없음";
+
+      document.getElementById('record-memory2').innerText = memory2Best 
+        ? `최고 기록: ${memory2Best}초` : "최고 기록: 없음";
+
+      document.getElementById('record-kanji').innerText = kanjiBest 
+        ? `최고 기록: ${kanjiBest}초` : "최고 기록: 없음";
+
+      document.getElementById('record-num').innerText = numBest 
+        ? `최고 기록: ${numBest}개` : "최고 기록: 없음";
+
+      document.getElementById('record-fuse').innerText = fuseBest 
+        ? `최고 기록: ${fuseBest}초` : "최고 기록: 없음";
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+      document.getElementById(screenId).classList.add('active-screen');
+      updateLobbyRecords();
+
+      if (screenId === 'kanji-game') {
+        initKanjiCanvas();
+      } else if (screenId === 'memory2-game') {
+        initCrtCanvas();
       }
     }
 
-    function checkAllPuzzlesCleared() {
-      let cleared = JSON.parse(localStorage.getItem('mimic_cleared_puzzles') || '[]');
-      if (!cleared.includes(activeStageId)) {
-        cleared.push(activeStageId);
-        localStorage.setItem('mimic_cleared_puzzles', JSON.stringify(cleared));
+    /* =========================================================
+       2. 메모리 게임 1
+    ========================================================= */
+    const memoryButtons = document.querySelectorAll('.btn-pad');
+    const memoryStatus = document.getElementById('memory-status');
+    const memoryStartBtn = document.getElementById('memory-start-btn');
+
+    let memorySequence = [];
+    let memoryPlayerSeq = [];
+    let isMemoryPlaying = false;
+    let isMemoryActive = false;
+    let memoryStartTime = 0;
+
+    memoryButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => handleMemoryClick(e));
+    });
+
+    function startMemoryGame() {
+      memorySequence = [];
+      memoryPlayerSeq = [];
+      isMemoryActive = false;
+      memoryStartBtn.disabled = true;
+      memoryStatus.innerText = "패턴을 기억하세요...";
+
+      for (let i = 0; i < 5; i++) {
+        memorySequence.push(Math.floor(Math.random() * 9));
       }
-      if (cleared.length >= 6) {
-        unlockAchievement('all_puzzles');
-      }
+
+      playMemorySequence();
     }
 
-    function onPuzzleSuccess(puzzleName, score, extraData = {}) {
-      saveScore(puzzleName, score);
-      unlockAchievement('first_clear');
-      checkAllPuzzlesCleared();
+    function playMemorySequence() {
+      isMemoryPlaying = true;
+      let delay = 500;
 
-      const timeVal = parseFloat(score);
-      if (timeVal <= 10.0) unlockAchievement('speed_demon');
-      if (timeVal <= 5.0) unlockAchievement('super_speed');
+      memorySequence.forEach((btnIndex) => {
+        setTimeout(() => {
+          highlightMemoryBtn(btnIndex, 'active', 400);
+          playSound('click');
+        }, delay);
+        delay += 650;
+      });
 
-      if (puzzleName === '기억력 퍼즐') unlockAchievement('clear_mem');
-      if (puzzleName === '한자 정화') {
-        unlockAchievement('clear_kanji');
-        if (extraData.ratio >= 0.85) unlockAchievement('perfect_kanji');
-      }
-      if (puzzleName === '퓨즈박스') unlockAchievement('clear_fuse');
-      if (puzzleName === '전선 연결') unlockAchievement('clear_wire');
-      if (puzzleName === '암호 해독') unlockAchievement('clear_code');
-      if (puzzleName === '미로 탈출') unlockAchievement('clear_maze');
+      setTimeout(() => {
+        isMemoryPlaying = false;
+        isMemoryActive = true;
+        memoryStartTime = Date.now();
+        memoryStatus.innerText = "순서대로 누르세요! (0/5)";
+      }, delay);
     }
 
-    function updateLobbyDisplay() {
-      let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
-      const getTop = (key) => records[key] && records[key][0] ? `최고기록: ${records[key][0]}초` : '최고기록: -';
-      
-      document.getElementById('rec-mem1').innerText = getTop('기억력 퍼즐');
-      document.getElementById('rec-kanji').innerText = getTop('한자 정화');
-      document.getElementById('rec-fuse').innerText = getTop('퓨즈박스');
-      document.getElementById('rec-wire').innerText = getTop('전선 연결');
-      document.getElementById('rec-code').innerText = getTop('암호 해독');
-      document.getElementById('rec-maze').innerText = getTop('미로 탈출');
-
-      let unlocked = JSON.parse(localStorage.getItem('mimic_achievements') || '[]');
-      document.getElementById('achieve-badge-count').innerText = `(${unlocked.length}/12)`;
+    function highlightMemoryBtn(index, className, duration) {
+      return new Promise(resolve => {
+        const btn = memoryButtons[index];
+        btn.classList.add(className);
+        setTimeout(() => {
+          btn.classList.remove(className);
+          resolve();
+        }, duration);
+      });
     }
 
-    // --- 1. 기억력 퍼즐 ---
-    let memSequence = [], memUserIdx = 0;
-    function startMem1() {
-      memSequence = [];
-      memUserIdx = 0;
-      for (let i = 0; i < 4; i++) memSequence.push(Math.floor(Math.random() * 9));
-      playMemSequence();
-    }
-    function playMemSequence() {
-      let idx = 0;
-      const btns = document.querySelectorAll('.mem-btn');
-      btns.forEach(b => b.classList.remove('active'));
-      const timer = setInterval(() => {
-        if (idx > 0) btns[memSequence[idx - 1]].classList.remove('active');
-        if (idx < memSequence.length) {
-          btns[memSequence[idx]].classList.add('active');
-          idx++;
-        } else {
-          clearInterval(timer);
-          startTimer('timer-mem1');
-        }
-      }, 600);
-    }
-    function pressMem(btnIdx) {
-      if (memSequence.length === 0) return;
-      if (btnIdx === memSequence[memUserIdx]) {
-        memUserIdx++;
-        if (memUserIdx === memSequence.length) {
-          const t = stopTimer();
-          alert(`성공! 기록: ${t}초`);
-          onPuzzleSuccess('기억력 퍼즐', t);
-          memSequence = [];
+    async function handleMemoryClick(e) {
+      if (isMemoryPlaying || !isMemoryActive) return;
+
+      const clickedIndex = parseInt(e.target.getAttribute('data-id'));
+      const step = memoryPlayerSeq.length;
+
+      if (clickedIndex === memorySequence[step]) {
+        playSound('click');
+        memoryPlayerSeq.push(clickedIndex);
+        highlightMemoryBtn(clickedIndex, 'active', 200);
+        memoryStatus.innerText = `순서대로 누르세요! (${memoryPlayerSeq.length}/5)`;
+
+        if (memoryPlayerSeq.length === 5) {
+          isMemoryActive = false;
+          const timeSpent = ((Date.now() - memoryStartTime) / 1000).toFixed(2);
+          playSound('success');
+          memoryStatus.innerText = `성공! 소요시간: ${timeSpent}초`;
+          memoryStartBtn.disabled = false;
+
+          const best = localStorage.getItem('mimic_best_memory');
+          if (!best || parseFloat(timeSpent) < parseFloat(best)) {
+            localStorage.setItem('mimic_best_memory', timeSpent);
+          }
         }
       } else {
-        stopTimer();
-        alert('틀렸습니다! 다시 시도하세요.');
-        memSequence = [];
+        isMemoryActive = false;
+        playSound('fail');
+        memoryStatus.innerText = "틀렸습니다! 다시 시도하세요.";
+        await highlightMemoryBtn(clickedIndex, 'error', 500);
+        memoryPlayerSeq = [];
+        memoryStartBtn.disabled = false;
       }
     }
 
-    // --- 2. 한자 정화 ---
-    let kCanvas, kCtx, isKDrawing = false;
-    const kanjiList = ['崇', '拜', '結', '鎭', '封', '祓'];
-    let currentKanji = '結';
+    /* =========================================================
+       3. 메모리 게임 2 (CRT 모니터 도형 퍼즐)
+    ========================================================= */
+    let crtCanvas, crtCtx;
+    let crtSequence = [];
+    let crtPlayerSeq = [];
+    let crtRound = 1; // 총 2라운드
+    let isCrtPlaying = false;
+    let isCrtActive = false;
+    let crtStartTime = 0;
 
-    function initKanjiCanvas() {
-      kCanvas = document.getElementById('kanji-canvas');
-      kCtx = kCanvas.getContext('2d');
-
-      const getPos = (e) => {
-        const rect = kCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      };
-
-      const startDraw = (e) => { isKDrawing = true; draw(e); };
-      const endDraw = () => { isKDrawing = false; kCtx.beginPath(); };
-      const draw = (e) => {
-        if (!isKDrawing) return;
-        const pos = getPos(e);
-        kCtx.lineWidth = 14;
-        kCtx.lineCap = 'round';
-        kCtx.strokeStyle = '#ff4757';
-        kCtx.lineTo(pos.x, pos.y);
-        kCtx.stroke();
-        kCtx.beginPath();
-        kCtx.moveTo(pos.x, pos.y);
-      };
-
-      kCanvas.addEventListener('mousedown', startDraw);
-      kCanvas.addEventListener('mouseup', endDraw);
-      kCanvas.addEventListener('mousemove', draw);
-      kCanvas.addEventListener('touchstart', startDraw);
-      kCanvas.addEventListener('touchend', endDraw);
-      kCanvas.addEventListener('touchmove', draw);
+    function initCrtCanvas() {
+      crtCanvas = document.getElementById('crt-canvas');
+      crtCtx = crtCanvas.getContext('2d');
+      drawCrtShape(null);
     }
 
-    function resetKanji() {
-      currentKanji = kanjiList[Math.floor(Math.random() * kanjiList.length)];
-      document.getElementById('kanji-title').innerText = `🖌️ 한자 정화 (${currentKanji})`;
+    function drawCrtShape(type) {
+      crtCtx.clearRect(0, 0, 260, 180);
+      if (type === null) return;
+
+      crtCtx.strokeStyle = '#00ff41';
+      crtCtx.lineWidth = 4;
+      crtCtx.shadowColor = '#00ff41';
+      crtCtx.shadowBlur = 12;
+      crtCtx.beginPath();
+
+      if (type === 0) { // 삼각형
+        crtCtx.moveTo(130, 30);
+        crtCtx.lineTo(40, 150);
+        crtCtx.lineTo(220, 150);
+        crtCtx.closePath();
+      } else if (type === 1) { // 사각형
+        crtCtx.rect(50, 30, 160, 120);
+      } else if (type === 2) { // 사다리꼴
+        crtCtx.moveTo(80, 40);
+        crtCtx.lineTo(180, 40);
+        crtCtx.lineTo(220, 140);
+        crtCtx.lineTo(40, 140);
+        crtCtx.closePath();
+      } else if (type === 3) { // 원
+        crtCtx.arc(130, 90, 60, 0, Math.PI * 2);
+      }
+
+      crtCtx.stroke();
+      crtCtx.shadowBlur = 0; // 초기화
+    }
+
+    function startMemory2Game() {
+      crtRound = 1;
+      crtStartTime = Date.now();
+      document.getElementById('memory2-start-btn').disabled = true;
+      startCrtRound();
+    }
+
+    function startCrtRound() {
+      // 0, 1, 2, 3 도형을 중복 없이 무작위 셔플
+      crtSequence = [0, 1, 2, 3];
+      for (let i = crtSequence.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [crtSequence[i], crtSequence[j]] = [crtSequence[j], crtSequence[i]];
+      }
+
+      crtPlayerSeq = [];
+      isCrtActive = false;
+      document.getElementById('memory2-status').innerText = `[라운드 ${crtRound}/2] 도형 순서를 외우세요...`;
+
+      playCrtSequence();
+    }
+
+    function playCrtSequence() {
+      isCrtPlaying = true;
+      let delay = 600;
+
+      crtSequence.forEach((shapeType) => {
+        setTimeout(() => {
+          drawCrtShape(shapeType);
+          playSound('click');
+        }, delay);
+
+        delay += 700;
+
+        setTimeout(() => {
+          drawCrtShape(null);
+        }, delay - 200);
+      });
+
+      setTimeout(() => {
+        isCrtPlaying = false;
+        isCrtActive = true;
+        document.getElementById('memory2-status').innerText = `[라운드 ${crtRound}/2] 순서대로 버튼을 누르세요! (0/4)`;
+      }, delay);
+    }
+
+    function handleCrtInput(shapeType) {
+      if (isCrtPlaying || !isCrtActive) return;
+
+      const step = crtPlayerSeq.length;
+
+      if (shapeType === crtSequence[step]) {
+        playSound('click');
+        crtPlayerSeq.push(shapeType);
+        drawCrtShape(shapeType);
+        setTimeout(() => drawCrtShape(null), 250);
+
+        document.getElementById('memory2-status').innerText = `[라운드 ${crtRound}/2] 순서대로 버튼을 누르세요! (${crtPlayerSeq.length}/4)`;
+
+        if (crtPlayerSeq.length === 4) {
+          isCrtActive = false;
+
+          if (crtRound === 1) {
+            crtRound = 2;
+            playSound('success');
+            document.getElementById('memory2-status').innerText = "1라운드 성공! 잠시 후 2라운드가 시작됩니다.";
+            setTimeout(startCrtRound, 1200);
+          } else {
+            // 2라운드 최종 성공
+            const timeSpent = ((Date.now() - crtStartTime) / 1000).toFixed(2);
+            playSound('success');
+            document.getElementById('memory2-status').innerText = `모든 라운드 클리어! 소요시간: ${timeSpent}초`;
+            document.getElementById('memory2-start-btn').disabled = false;
+
+            const best = localStorage.getItem('mimic_best_memory2');
+            if (!best || parseFloat(timeSpent) < parseFloat(best)) {
+              localStorage.setItem('mimic_best_memory2', timeSpent);
+            }
+          }
+        }
+      } else {
+        // 실패
+        isCrtActive = false;
+        playSound('fail');
+        document.getElementById('memory2-status').innerText = "틀렸습니다! 다시 시작하세요.";
+        document.getElementById('memory2-start-btn').disabled = false;
+        drawCrtShape(null);
+      }
+    }
+
+    /* =========================================================
+       4. 한자 그리기 퍼즐 (판정 대폭 완화)
+    ========================================================= */
+    const kanjiList = ['崇', '拜', '結', '鎭', '封', '祓'];
+    let currentKanji = '';
+    let guideCanvas, guideCtx, drawCanvas, drawCtx;
+    let isDrawing = false;
+    let isKanjiActive = false;
+    let kanjiStartTime = 0;
+    let guideTotalPixels = 0;
+
+    function initKanjiCanvas() {
+      guideCanvas = document.getElementById('guide-canvas');
+      guideCtx = guideCanvas.getContext('2d');
+      drawCanvas = document.getElementById('draw-canvas');
+      drawCtx = drawCanvas.getContext('2d');
+
+      drawCanvas.onmousedown = startDrawing;
+      drawCanvas.onmousemove = draw;
+      drawCanvas.onmouseup = stopDrawing;
+      drawCanvas.onmouseleave = stopDrawing;
+
+      drawCanvas.ontouchstart = (e) => { startDrawing(e.touches[0]); };
+      drawCanvas.ontouchmove = (e) => { draw(e.touches[0]); e.preventDefault(); };
+      drawCanvas.ontouchend = stopDrawing;
+
       clearKanjiCanvas();
-      startTimer('timer-kanji');
     }
 
     function clearKanjiCanvas() {
-      kCtx.clearRect(0, 0, kCanvas.width, kCanvas.height);
-      kCtx.font = '130px sans-serif';
-      kCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      kCtx.textAlign = 'center';
-      kCtx.textBaseline = 'middle';
-      kCtx.fillText(currentKanji, kCanvas.width / 2, kCanvas.height / 2);
+      if (!guideCtx || !drawCtx) return;
+      guideCtx.clearRect(0, 0, 320, 320);
+      drawCtx.clearRect(0, 0, 320, 320);
     }
 
-    function checkKanji() {
-      const imgData = kCtx.getImageData(0, 0, kCanvas.width, kCanvas.height).data;
-      let redPixels = 0;
-      for (let i = 0; i < imgData.length; i += 4) {
-        if (imgData[i] > 200 && imgData[i+1] < 100) redPixels++;
-      }
-      const ratio = redPixels / (kCanvas.width * kCanvas.height * 0.12);
-      if (ratio >= 0.5) {
-        const t = stopTimer();
-        alert(`정화 성공! (완성도: ${Math.min(100, Math.round(ratio*100))}%) 기록: ${t}초`);
-        onPuzzleSuccess('한자 정화', t, { ratio });
-      } else {
-        alert('한자를 더 꼼꼼하게 덮어쓰세요!');
+    function clearUserDraw() {
+      if (!drawCtx) return;
+      drawCtx.clearRect(0, 0, 320, 320);
+      playSound('click');
+      if (isKanjiActive) {
+        document.getElementById('kanji-status').innerText = `지웠습니다. 다시 그리세요. [ ${currentKanji} ]`;
       }
     }
 
-    // --- 3. 퓨즈박스 ---
-    let fuseState = [false, false, false, false];
-    function startFuse() {
-      fuseState = [false, false, false, false];
-      updateFuseUI();
-      startTimer('timer-fuse');
-    }
-    function toggleFuse(idx) {
-      fuseState[idx] = !fuseState[idx];
-      if (idx > 0) fuseState[idx - 1] = !fuseState[idx - 1];
-      if (idx < 3) fuseState[idx + 1] = !fuseState[idx + 1];
-      updateFuseUI();
-      if (fuseState.every(v => v === true)) {
-        const t = stopTimer();
-        alert(`퓨즈 가동 완료! 기록: ${t}초`);
-        onPuzzleSuccess('퓨즈박스', t);
-      }
-    }
-    function updateFuseUI() {
-      const slots = document.querySelectorAll('.fuse-slot');
-      slots.forEach((s, idx) => {
-        if (fuseState[idx]) s.classList.add('on');
-        else s.classList.remove('on');
-      });
-    }
+    function startKanjiGame() {
+      clearKanjiCanvas();
+      currentKanji = kanjiList[Math.floor(Math.random() * kanjiList.length)];
 
-    // --- 4. 전선 연결 ---
-    let wCanvas, wCtx;
-    const WIRE_COLORS = ['#ff4757', '#2ed573', '#1e90ff', '#ffa500'];
-    let leftWires = [], rightWires = [], connections = {};
-    let draggingWire = null, dragPos = { x: 0, y: 0 };
+      guideCtx.font = "bold 250px 'Gothic A1', 'Arial Black', sans-serif";
+      guideCtx.textAlign = "center";
+      guideCtx.textBaseline = "middle";
+      guideCtx.fillStyle = "#2b1c08";
+      guideCtx.fillText(currentKanji, 160, 160);
 
-    function initWireCanvas() {
-      wCanvas = document.getElementById('wire-canvas');
-      wCtx = wCanvas.getContext('2d');
-
-      const getPos = (e) => {
-        const rect = wCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      };
-
-      const onStart = (e) => {
-        const pos = getPos(e);
-        leftWires.forEach((w) => {
-          if (Math.hypot(w.x - pos.x, w.y - pos.y) < 25) {
-            draggingWire = w;
-            dragPos = pos;
-          }
-        });
-      };
-
-      const onMove = (e) => {
-        if (!draggingWire) return;
-        dragPos = getPos(e);
-        drawWires();
-      };
-
-      const onEnd = () => {
-        if (!draggingWire) return;
-        rightWires.forEach((rw) => {
-          if (Math.hypot(rw.x - dragPos.x, rw.y - dragPos.y) < 25) {
-            connections[draggingWire.color] = rw.color;
-          }
-        });
-        draggingWire = null;
-        drawWires();
-        checkWireWin();
-      };
-
-      wCanvas.addEventListener('mousedown', onStart);
-      wCanvas.addEventListener('mousemove', onMove);
-      wCanvas.addEventListener('mouseup', onEnd);
-      wCanvas.addEventListener('touchstart', onStart);
-      wCanvas.addEventListener('touchmove', onMove);
-      wCanvas.addEventListener('touchend', onEnd);
-    }
-
-    function resetWireGame() {
-      connections = {};
-      let colors1 = [...WIRE_COLORS].sort(() => Math.random() - 0.5);
-      let colors2 = [...WIRE_COLORS].sort(() => Math.random() - 0.5);
-
-      leftWires = colors1.map((c, i) => ({ color: c, x: 25, y: 40 + i * 50 }));
-      rightWires = colors2.map((c, i) => ({ color: c, x: 275, y: 40 + i * 50 }));
-
-      drawWires();
-      startTimer('timer-wire');
-    }
-
-    function drawWires() {
-      wCtx.clearRect(0, 0, wCanvas.width, wCanvas.height);
-      Object.keys(connections).forEach((lColor) => {
-        const rColor = connections[lColor];
-        const lw = leftWires.find(w => w.color === lColor);
-        const rw = rightWires.find(w => w.color === rColor);
-        wCtx.beginPath();
-        wCtx.lineWidth = 8;
-        wCtx.strokeStyle = lColor;
-        wCtx.moveTo(lw.x, lw.y);
-        wCtx.lineTo(rw.x, rw.y);
-        wCtx.stroke();
-      });
-
-      if (draggingWire) {
-        wCtx.beginPath();
-        wCtx.lineWidth = 8;
-        wCtx.strokeStyle = draggingWire.color;
-        wCtx.moveTo(draggingWire.x, draggingWire.y);
-        wCtx.lineTo(dragPos.x, dragPos.y);
-        wCtx.stroke();
+      const imgData = guideCtx.getImageData(0, 0, 320, 320);
+      guideTotalPixels = 0;
+      for (let i = 3; i < imgData.data.length; i += 4) {
+        if (imgData.data[i] > 30) guideTotalPixels++;
       }
 
-      leftWires.forEach(w => drawTerminal(w.x, w.y, w.color));
-      rightWires.forEach(w => drawTerminal(w.x, w.y, w.color));
-    }
-
-    function drawTerminal(x, y, color) {
-      wCtx.beginPath();
-      wCtx.arc(x, y, 12, 0, Math.PI * 2);
-      wCtx.fillStyle = color;
-      wCtx.fill();
-      wCtx.lineWidth = 3;
-      wCtx.strokeStyle = '#ffffff';
-      wCtx.stroke();
-    }
-
-    function checkWireWin() {
-      const keys = Object.keys(connections);
-      if (keys.length === 4) {
-        const isCorrect = keys.every(k => k === connections[k]);
-        if (isCorrect) {
-          const t = stopTimer();
-          alert(`전선 연결 성공! 기록: ${t}초`);
-          onPuzzleSuccess('전선 연결', t);
-        } else {
-          alert('색상이 맞지 않은 전선이 있습니다!');
-        }
-      }
-    }
-
-    // --- 5. 암호 해독 ---
-    let targetCode = '', currentInputCode = '';
-    function resetCodeGame() {
-      targetCode = Math.floor(1000 + Math.random() * 9000).toString();
-      currentInputCode = '';
-      document.getElementById('code-hint').innerText = `암호 힌트: [${targetCode}]`;
-      document.getElementById('code-display').innerText = '----';
-      startTimer('timer-code');
-    }
-    function pressKey(num) {
-      if (currentInputCode.length < 4) {
-        currentInputCode += num;
-        document.getElementById('code-display').innerText = currentInputCode.padEnd(4, '-');
-      }
-    }
-    function clearKey() {
-      currentInputCode = '';
-      document.getElementById('code-display').innerText = '----';
-    }
-    function checkCode() {
-      if (currentInputCode === targetCode) {
-        const t = stopTimer();
-        alert(`암호 해독 완료! 기록: ${t}초`);
-        onPuzzleSuccess('암호 해독', t);
-      } else {
-        alert('잘못된 암호입니다!');
-        clearKey();
-      }
-    }
-
-    // --- 6. 미로 탈출 ---
-    let mCanvas, mCtx;
-    let playerPos = { x: 30, y: 30 }, goalPos = { x: 230, y: 230 };
-    let isDraggingPlayer = false;
-
-    function initMazeCanvas() {
-      mCanvas = document.getElementById('maze-canvas');
-      mCtx = mCanvas.getContext('2d');
-
-      const getPos = (e) => {
-        const rect = mCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      };
-
-      const startMove = (e) => {
-        const pos = getPos(e);
-        if (Math.hypot(playerPos.x - pos.x, playerPos.y - pos.y) < 20) {
-          isDraggingPlayer = true;
-        }
-      };
-      const doMove = (e) => {
-        if (!isDraggingPlayer) return;
-        const pos = getPos(e);
-        playerPos = pos;
-        drawMaze();
-        if (Math.hypot(playerPos.x - goalPos.x, playerPos.y - goalPos.y) < 20) {
-          isDraggingPlayer = false;
-          const t = stopTimer();
-          alert(`미로 탈출 성공! 기록: ${t}초`);
-          onPuzzleSuccess('미로 탈출', t);
-        }
-      };
-      const endMove = () => { isDraggingPlayer = false; };
-
-      mCanvas.addEventListener('mousedown', startMove);
-      mCanvas.addEventListener('mousemove', doMove);
-      mCanvas.addEventListener('mouseup', endMove);
-      mCanvas.addEventListener('touchstart', startMove);
-      mCanvas.addEventListener('touchmove', doMove);
-      mCanvas.addEventListener('touchend', endMove);
-    }
-
-    function resetMaze() {
-      playerPos = { x: 30, y: 30 };
-      goalPos = { x: 230, y: 230 };
-      drawMaze();
-      startTimer('timer-maze');
-    }
-
-    function drawMaze() {
-      mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+      isKanjiActive = true;
+      kanjiStartTime = Date.now();
+      document.getElementById('kanji-status').innerText = `한자 [ ${currentKanji} ] 를 다 그린 후 [완료]를 누르세요!`;
       
-      // 골인 지점
-      mCtx.beginPath();
-      mCtx.arc(goalPos.x, goalPos.y, 16, 0, Math.PI * 2);
-      mCtx.fillStyle = '#2ed573';
-      mCtx.fill();
-
-      // 플레이어
-      mCtx.beginPath();
-      mCtx.arc(playerPos.x, playerPos.y, 14, 0, Math.PI * 2);
-      mCtx.fillStyle = '#ff4757';
-      mCtx.fill();
+      document.getElementById('kanji-start-btn').disabled = true;
+      document.getElementById('kanji-clear-btn').disabled = false;
+      document.getElementById('kanji-submit-btn').disabled = false;
     }
 
-    // --- Modals ---
-    function showLeaderboardModal() {
-      const modal = document.getElementById('rank-modal');
-      const listEl = document.getElementById('rank-list');
-      let records = JSON.parse(localStorage.getItem('mimic_rankings') || '{}');
-      const puzzleList = ['기억력 퍼즐', '한자 정화', '퓨즈박스', '전선 연결', '암호 해독', '미로 탈출'];
+    function getCanvasPos(e) {
+      const rect = drawCanvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
 
-      listEl.innerHTML = '';
-      puzzleList.forEach(p => {
-        const scores = records[p] || [];
-        const item = document.createElement('div');
-        item.style.cssText = `background:#222230; border:1px solid #444; border-radius:10px; padding:10px;`;
-        let scoreHTML = scores.length > 0 
-          ? scores.map((s, idx) => `<span style="color:${idx===0?'#ffd700':idx===1?'#c0c0c0':'#cd7f32'}; font-weight:bold;">${idx+1}위: ${s}초</span>`).join(' | ')
-          : '<span style="color:#666;">기록 없음</span>';
+    function startDrawing(e) {
+      if (!isKanjiActive) return;
+      isDrawing = true;
+      const pos = getCanvasPos(e);
 
-        item.innerHTML = `
-          <div style="font-weight:bold; margin-bottom:4px; color:#fff; font-size:0.85rem;">🧩 ${p}</div>
-          <div style="font-size:0.75rem;">${scoreHTML}</div>
-        `;
-        listEl.appendChild(item);
+      drawCtx.beginPath();
+      drawCtx.moveTo(pos.x, pos.y);
+      
+      drawCtx.lineWidth = 32; // 붓 두께 완화
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
+      drawCtx.strokeStyle = '#181109';
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isKanjiActive) return;
+      const pos = getCanvasPos(e);
+
+      drawCtx.lineTo(pos.x, pos.y);
+      drawCtx.stroke();
+    }
+
+    function stopDrawing() {
+      if (!isDrawing) return;
+      isDrawing = false;
+    }
+
+    function checkKanjiResult() {
+      if (!isKanjiActive) return;
+
+      const drawImgData = drawCtx.getImageData(0, 0, 320, 320);
+      const guideImgData = guideCtx.getImageData(0, 0, 320, 320);
+
+      let matchedPixels = 0;
+
+      for (let i = 3; i < drawImgData.data.length; i += 4) {
+        const isUserDrawn = drawImgData.data[i] > 30;
+        const isGuideArea = guideImgData.data[i] > 30;
+
+        if (isUserDrawn && isGuideArea) {
+          matchedPixels++;
+        }
+      }
+
+      const fillRatio = matchedPixels / guideTotalPixels;
+
+      // 완성도 기준 50% 이상이면 전부 통과 (이탈 감지 해제)
+      if (fillRatio >= 0.50) {
+        isKanjiActive = false;
+        const timeSpent = ((Date.now() - kanjiStartTime) / 1000).toFixed(2);
+        playSound('success');
+        document.getElementById('kanji-status').innerText = `성공! 소요시간: ${timeSpent}초 (완성도: ${Math.floor(fillRatio * 100)}%)`;
+        
+        document.getElementById('kanji-start-btn').disabled = false;
+        document.getElementById('kanji-clear-btn').disabled = true;
+        document.getElementById('kanji-submit-btn').disabled = true;
+
+        const best = localStorage.getItem('mimic_best_kanji');
+        if (!best || parseFloat(timeSpent) < parseFloat(best)) {
+          localStorage.setItem('mimic_best_kanji', timeSpent);
+        }
+      } else {
+        failKanjiGame(`획을 더 채워주세요! (완성도: ${Math.floor(fillRatio * 100)}% / 목표: 50%)`);
+      }
+    }
+
+    function failKanjiGame(reason) {
+      playSound('fail');
+      document.getElementById('kanji-status').innerText = `실패: ${reason}`;
+    }
+
+    /* =========================================================
+       5. 1~4 숫자 반응 퍼즐
+    ========================================================= */
+    const spawnArea = document.getElementById('num-spawn-area');
+    const numStatus = document.getElementById('num-status');
+    const numLivesEl = document.getElementById('num-lives');
+    const numStartBtn = document.getElementById('num-start-btn');
+
+    let currentNumTarget = null;
+    let targetElement = null;
+    let isNumActive = false;
+    let lives = 4;
+    let score = 0;
+    let circleTimer = null;
+    let circleProgressInterval = null;
+    const TIME_LIMIT_MS = 1400;
+
+    window.addEventListener('keydown', (e) => {
+      if (!isNumActive || !currentNumTarget) return;
+
+      const pressedNum = parseInt(e.key);
+      if ([1, 2, 3, 4].includes(pressedNum)) {
+        if (pressedNum === currentNumTarget) {
+          handleNumHit();
+        } else {
+          handleNumMiss("틀린 키 입력!");
+        }
+      }
+    });
+
+    function startNumGame() {
+      lives = 4;
+      score = 0;
+      isNumActive = true;
+      numStartBtn.disabled = true;
+      updateLivesDisplay();
+      numStatus.innerText = `[1, 2, 3, 4] 키를 누르세요! 점수: ${score}`;
+
+      spawnNextTarget();
+    }
+
+    function updateLivesDisplay() {
+      numLivesEl.innerText = `기회: ${'❤️'.repeat(lives)}${'🖤'.repeat(4 - lives)}`;
+    }
+
+    function spawnNextTarget() {
+      if (!isNumActive) return;
+
+      clearTarget();
+
+      currentNumTarget = Math.floor(Math.random() * 4) + 1;
+
+      const posX = Math.floor(Math.random() * 250);
+      const posY = Math.floor(Math.random() * 250);
+
+      targetElement = document.createElement('div');
+      targetElement.className = 'target-circle';
+      targetElement.style.left = `${posX}px`;
+      targetElement.style.top = `${posY}px`;
+
+      const numText = document.createElement('span');
+      numText.innerText = currentNumTarget;
+
+      const timerBarBox = document.createElement('div');
+      timerBarBox.className = 'timer-bar-container';
+
+      const timerBar = document.createElement('div');
+      timerBar.className = 'timer-bar';
+      timerBarBox.appendChild(timerBar);
+
+      targetElement.appendChild(numText);
+      targetElement.appendChild(timerBarBox);
+      spawnArea.appendChild(targetElement);
+
+      let startTime = Date.now();
+      circleProgressInterval = setInterval(() => {
+        let elapsed = Date.now() - startTime;
+        let percent = Math.max(0, 100 - (elapsed / TIME_LIMIT_MS) * 100);
+        timerBar.style.width = percent + '%';
+      }, 30);
+
+      circleTimer = setTimeout(() => {
+        handleNumMiss("시간 초과!");
+      }, TIME_LIMIT_MS);
+    }
+
+    function clearTarget() {
+      clearTimeout(circleTimer);
+      clearInterval(circleProgressInterval);
+      spawnArea.innerHTML = '';
+      currentNumTarget = null;
+    }
+
+    function handleNumHit() {
+      clearTimeout(circleTimer);
+      clearInterval(circleProgressInterval);
+
+      if (targetElement) {
+        targetElement.classList.add('hit');
+      }
+
+      playSound('click');
+      score++;
+      numStatus.innerText = `나이스! 현재 점수: ${score}`;
+
+      setTimeout(() => {
+        spawnNextTarget();
+      }, 200);
+    }
+
+    function handleNumMiss(reason) {
+      clearTimeout(circleTimer);
+      clearInterval(circleProgressInterval);
+
+      if (targetElement) {
+        targetElement.classList.add('miss');
+      }
+
+      playSound('fail');
+      lives--;
+      updateLivesDisplay();
+
+      if (lives <= 0) {
+        isNumActive = false;
+        numStatus.innerText = `게임 오버! (${reason}) 총 점수: ${score}개`;
+        numStartBtn.disabled = false;
+
+        const best = localStorage.getItem('mimic_best_num_score');
+        if (!best || score > parseInt(best)) {
+          localStorage.setItem('mimic_best_num_score', score);
+        }
+
+        setTimeout(() => {
+          clearTarget();
+        }, 500);
+      } else {
+        numStatus.innerText = `${reason} 기회 남음: ${lives}`;
+        setTimeout(() => {
+          spawnNextTarget();
+        }, 400);
+      }
+    }
+
+    /* =========================================================
+       6. 퓨즈박스 퍼즐
+    ========================================================= */
+    const fuseStatus = document.getElementById('fuse-status');
+    const fuseCover = document.getElementById('fuse-cover');
+    const fuseStartBtn = document.getElementById('fuse-start-btn');
+    const bigScrew = document.getElementById('big-screw');
+    const screws = document.querySelectorAll('.screw');
+
+    let fuseActive = false;
+    let fuseStartTime = 0;
+    let screwsLeft = 4;
+    let totalCutPointsLeft = 0;
+
+    let selectedScrewIndex = -1;
+    let isDragging = false;
+    let prevAngle = 0;
+    let currentRotation = 0;
+    const REQUIRED_ROTATION = Math.PI * 4; // 2바퀴 = 720도
+
+    screws.forEach(screw => {
+      screw.addEventListener('click', (e) => handleScrewClick(e));
+    });
+
+    window.addEventListener('mousedown', startScrewDrag);
+    window.addEventListener('touchstart', (e) => startScrewDrag(e.touches[0]));
+    window.addEventListener('mousemove', dragScrew);
+    window.addEventListener('touchmove', (e) => dragScrew(e.touches[0]));
+    window.addEventListener('mouseup', stopScrewDrag);
+    window.addEventListener('touchend', stopScrewDrag);
+
+    function startFuseGame() {
+      fuseActive = true;
+      fuseStartTime = Date.now();
+      screwsLeft = 4;
+      selectedScrewIndex = -1;
+      isDragging = false;
+
+      fuseStartBtn.disabled = true;
+      fuseCover.classList.remove('open');
+      bigScrew.classList.remove('active');
+      fuseStatus.innerText = "풀고 싶은 나사를 먼저 클릭하세요! (4개 남음)";
+
+      screws.forEach(s => {
+        s.classList.remove('removed');
+        s.style.transform = 'rotate(0deg)';
       });
-      modal.style.display = 'flex';
+
+      setupMultiWires();
     }
 
-    function closeLeaderboardModal() {
-      document.getElementById('rank-modal').style.display = 'none';
+    function setupMultiWires() {
+      const colors = ['red', 'blue', 'yellow'];
+      totalCutPointsLeft = 0;
+
+      for (let i = 0; i < 3; i++) {
+        const lane = document.getElementById(`wire-lane-${i}`);
+        lane.innerHTML = '';
+
+        const count = Math.floor(Math.random() * 2) + 2;
+        totalCutPointsLeft += count;
+
+        let positions = (count === 2) ? [18, 65] : [15, 45, 75];
+
+        positions.forEach((pos) => {
+          const cutPoint = document.createElement('div');
+          cutPoint.className = 'wire-cut-point';
+          cutPoint.style.top = `${pos}%`;
+
+          cutPoint.addEventListener('click', () => handleCutPointClick(cutPoint, lane, colors[i]));
+          lane.appendChild(cutPoint);
+        });
+
+        renderWireSegments(lane, colors[i]);
+      }
     }
 
-    function showAchievementModal() {
-      const modal = document.getElementById('achievement-modal');
-      const listEl = document.getElementById('achievement-list');
-      let unlocked = JSON.parse(localStorage.getItem('mimic_achievements') || '[]');
+    function renderWireSegments(lane, color) {
+      lane.querySelectorAll('.wire-segment').forEach(s => s.remove());
 
-      listEl.innerHTML = '';
-      ACHIEVEMENTS.forEach(ach => {
-        const isUnlocked = unlocked.includes(ach.id);
-        const item = document.createElement('div');
-        item.style.cssText = `
-          padding: 10px 14px;
-          border-radius: 8px;
-          background: ${isUnlocked ? '#222230' : '#111116'};
-          border: 1px solid ${isUnlocked ? '#6a5acd' : '#333344'};
-          opacity: ${isUnlocked ? '1' : '0.5'};
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        `;
-        item.innerHTML = `
-          <div>
-            <div style="font-weight:bold; color:${isUnlocked ? '#ffffff' : '#888888'}; font-size:0.85rem;">${ach.title}</div>
-            <div style="font-size:0.75rem; color:#aaa;">${ach.desc}</div>
-          </div>
-          <div style="font-weight:bold; font-size:0.75rem; color:${isUnlocked ? '#2ed573' : '#ff4757'};">
-            ${isUnlocked ? '해금됨' : '잠김'}
-          </div>
-        `;
-        listEl.appendChild(item);
+      const cutPoints = Array.from(lane.querySelectorAll('.wire-cut-point'))
+                             .filter(cp => cp.style.display !== 'none')
+                             .map(cp => parseFloat(cp.style.top));
+
+      cutPoints.sort((a, b) => a - b);
+
+      let currentTop = 0;
+      cutPoints.forEach(pos => {
+        const seg = document.createElement('div');
+        seg.className = `wire-segment ${color}`;
+        seg.style.top = `${currentTop}%`;
+        seg.style.height = `${pos - currentTop}%`;
+        lane.appendChild(seg);
+        currentTop = pos + 6;
       });
-      modal.style.display = 'flex';
+
+      if (currentTop < 100) {
+        const lastSeg = document.createElement('div');
+        lastSeg.className = `wire-segment ${color}`;
+        lastSeg.style.top = `${currentTop}%`;
+        lastSeg.style.height = `${100 - currentTop}%`;
+        lane.appendChild(lastSeg);
+      }
     }
 
-    function closeAchievementModal() {
-      document.getElementById('achievement-modal').style.display = 'none';
-      updateLobbyDisplay();
+    function handleScrewClick(e) {
+      if (!fuseActive || screwsLeft === 0) return;
+
+      const screwEl = e.target.closest('.screw');
+      if (!screwEl || screwEl.classList.contains('removed')) return;
+
+      selectedScrewIndex = parseInt(screwEl.getAttribute('data-id'));
+      currentRotation = 0;
+
+      bigScrew.style.transform = 'translate(-50%, -50%) rotate(0deg) scale(1)';
+      bigScrew.classList.add('active');
+
+      playSound('click');
+      fuseStatus.innerText = "화면 아무 곳이나 클릭한 채 반시계 방향으로 2바퀴 돌리세요!";
     }
+
+    function startScrewDrag(e) {
+      if (!fuseActive || selectedScrewIndex === -1) return;
+
+      isDragging = true;
+      const rect = bigScrew.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      prevAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    }
+
+    function dragScrew(e) {
+      if (!isDragging || selectedScrewIndex === -1 || !fuseActive) return;
+
+      const rect = bigScrew.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      let deltaAngle = currentAngle - prevAngle;
+
+      if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+      if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+
+      if (deltaAngle < 0) {
+        currentRotation += Math.abs(deltaAngle);
+        bigScrew.style.transform = `translate(-50%, -50%) rotate(${-currentRotation}rad) scale(1)`;
+
+        if (currentRotation >= REQUIRED_ROTATION) {
+          screws[selectedScrewIndex].classList.add('removed');
+          screwsLeft--;
+          selectedScrewIndex = -1;
+          isDragging = false;
+
+          bigScrew.classList.remove('active');
+          playSound('click');
+
+          if (screwsLeft > 0) {
+            fuseStatus.innerText = `나사 풀기 성공! 남은 나사: ${screwsLeft}개`;
+          } else {
+            fuseCover.classList.add('open');
+            playSound('success');
+            fuseStatus.innerText = `커버 오픈! 빨간색 가이드 영역(${totalCutPointsLeft}개)을 눌러 절단하세요.`;
+          }
+        }
+      }
+
+      prevAngle = currentAngle;
+    }
+
+    function stopScrewDrag() {
+      isDragging = false;
+    }
+
+    function handleCutPointClick(cutPoint, lane, color) {
+      if (!fuseActive || screwsLeft > 0) return;
+      if (cutPoint.style.display === 'none') return;
+
+      cutPoint.style.display = 'none';
+      playSound('cut');
+      totalCutPointsLeft--;
+
+      renderWireSegments(lane, color);
+
+      if (totalCutPointsLeft > 0) {
+        fuseStatus.innerText = `절단 완료! 남은 절단 지점: ${totalCutPointsLeft}개`;
+      } else {
+        fuseActive = false;
+        const timeSpent = ((Date.now() - fuseStartTime) / 1000).toFixed(2);
+        playSound('success');
+        fuseStatus.innerText = `퓨즈박스 정화 완료! 소요시간: ${timeSpent}초`;
+        fuseStartBtn.disabled = false;
+
+        const best = localStorage.getItem('mimic_best_fuse');
+        if (!best || parseFloat(timeSpent) < parseFloat(best)) {
+          localStorage.setItem('mimic_best_fuse', timeSpent);
+        }
+      }
+    }
+
+    updateLobbyRecords();
   </script>
 </body>
 </html>
