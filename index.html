@@ -581,11 +581,8 @@
   <div id="lobby-screen" class="screen active-screen">
     <h1>THE MIMIC TRAINER</h1>
 
-    <div class="lobby-header-btns">
-      <button class="lobby-sub-btn" onclick="openModal('rank-modal')">🏆 랭킹 보기</button>
-      <button class="lobby-sub-btn" onclick="openModal('achieve-modal')">🏅 업적 보기</button>
-    </div>
-
+    
+    
     <div class="puzzle-grid">
       <div class="card" onclick="showScreen('memory-game')">
         <h3>기억력 퍼즐 1</h3>
@@ -755,40 +752,6 @@
     </div>
   </div>
 
-  <!-- [8] 모달: 랭킹 -->
-  <div id="rank-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">🏆 트레이너 명예의 전당</span>
-        <button class="modal-close" onclick="closeModal('rank-modal')">&times;</button>
-      </div>
-      <table class="rank-table">
-        <thead>
-          <tr>
-            <th>순위</th>
-            <th>플레이어</th>
-            <th>종합 스코어</th>
-          </tr>
-        </thead>
-        <tbody id="rank-list-body">
-          <!-- JS에서 동적 생성 -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- [9] 모달: 업적 -->
-  <div id="achieve-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">🏅 도전 과제 업적</span>
-        <button class="modal-close" onclick="closeModal('achieve-modal')">&times;</button>
-      </div>
-      <div class="achieve-list" id="achieve-list-body">
-        <!-- JS에서 동적 생성 -->
-      </div>
-    </div>
-  </div>
 
   <script>
     /* =========================================================
@@ -851,30 +814,7 @@
       }
     }
 
-    /* =========================================================
-       0-1. 업적 및 랭킹 시스템
-    ========================================================= */
-    const ACHIEVEMENTS = [
-      { id: 'mem1', name: '첫 발자국', desc: '기억력 퍼즐 1을 1회 클리어하세요.', icon: '🧠' },
-      { id: 'mem2', name: '모니터 마스터', desc: 'CRT 레트로 퍼즐을 2라운드까지 완벽 클리어하세요.', icon: '📺' },
-      { id: 'kanji', name: '한자 명인', desc: '한자 정화 퍼즐을 클리어하세요.', icon: '✍️' },
-      { id: 'num', name: '광속의 손가락', desc: '1~4 숫자 반응 퍼즐에서 15점 이상 달성하세요.', icon: '⚡' },
-      { id: 'fuse', name: '와이어 절단자', desc: '퓨즈박스 퍼즐을 클리어하세요.', icon: '✂️' },
-      { id: 'gen', name: '전력 복구자', desc: '발전기 전선 퍼즐 3단계를 모두 클리어하세요.', icon: '🔌' }
-    ];
-
-    function unlockAchievement(id) {
-      let unlocked = JSON.parse(localStorage.getItem('mimic_unlocked_achievements') || '[]');
-      if (!unlocked.includes(id)) {
-        unlocked.push(id);
-        localStorage.setItem('mimic_unlocked_achievements', JSON.stringify(unlocked));
-
-        const item = ACHIEVEMENTS.find(a => a.id === id);
-        if (item) {
-          showToast(`업적 달성! [${item.name}]`, item.icon);
-        }
-      }
-    }
+    
 
     function showToast(title, icon) {
       const container = document.getElementById('toast-container');
